@@ -5,6 +5,7 @@
 }
 
 html, body {
+    font-family: "Brush Script MT", cursive;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
@@ -12,11 +13,108 @@ html, body {
 
 .container {
     display: flex;
-    flex-flow: column;
     height: 100vh;
     width: 100vw;
-    background-image: url('./assets/images/background.jpg');
+    background-image: url('./assets/images/background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+}
+
+.coin-icon {
+    margin-top: 25%;
+    width: 90%;
+}
+
+.coin-counter {
+    margin-top: 1%;
+    color: white;
+    font-size: 60px;
+    font-weight: 700;
+}
+
+.progress-container {
+    position: relative;
+    width: 85%;
+    height: 20px;
+    background-color: #555;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(156deg, rgba(104,255,154,1) 0%, rgba(0,83,26,1) 100%);
+    border-radius: 20px;
+    transition: width 0.5s;
+}
+
+.progress-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 0;
+    color: white;
+    font-weight: bold;
+    line-height: 20px; /* Same as the height of the progress bar */
+}
+
+.content-container {
+    width: 100%;
+}
+
+.content {
+    display: none;
+    margin-top: 20px;
+    color: white;
+    font-size: 18px;
+}
+
+.content.active {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.menu {
+    position: fixed;
+    bottom: 3%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.menu-item {
+    color: white;
+    margin: 0 10px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.floating-number {
+    position: absolute;
+    font-size: 30px;
+    font-weight: 700;
+    color: #ffffff;
+    animation: floatUp 2s ease-out forwards;
+    pointer-events: none;
+}
+
+.menu-icon {
+    width: 100px;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
 }

@@ -8,6 +8,31 @@
 </head>
 <body>
     <div class="container">
+        <div class="content-container" id="content-container">
+            <div id="home-content" class="content active">
+                <div class="coin-counter" id="click-counter">
+                    0
+                </div>
+                <img src="assets/images/coin_icon_1.png" alt="coin_icon" class="coin-icon" id="coin">
+                <div class="progress-container">
+                    <div id="progress-bar"></div>
+                    <div class="progress-text" id="progress-text">500/500</div>
+                </div>
+            </div>
+            <div id="tasks-content" class="content">Task Content</div>
+            <div id="boosts-content" class="content">Boost Content</div>
+            <div id="ref-content" class="content">Referral Content</div>
+        </div>
+        <div class="menu">
+            <img src="assets/images/home_icon.png" alt="coin_icon" class="menu-icon"
+                 id="home" data-target="home-content">
+            <img src="assets/images/tasks_icon.png" alt="coin_icon" class="menu-icon"
+                 id="tasks" data-target="tasks-content">
+            <img src="assets/images/boosts_icon.png" alt="coin_icon" class="menu-icon"
+                 id="boosts" data-target="boosts-content">
+            <img src="assets/images/ref_icon.png" alt="coin_icon" class="menu-icon"
+                 id="referral" data-target="ref-content">
+        </div>
     </div>
 
     <script src="script.js"></script>
