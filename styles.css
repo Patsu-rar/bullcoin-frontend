@@ -13,6 +13,8 @@ html, body {
 
 .container {
     display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     height: 100vh;
     width: 100vw;
     background-image: url('./assets/images/background.png');
@@ -22,7 +24,6 @@ html, body {
 }
 
 .coin-icon {
-    margin-top: 25%;
     width: 90%;
 }
 
@@ -78,8 +79,6 @@ html, body {
 }
 
 .menu {
-    position: fixed;
-    bottom: 3%;
     display: flex;
     justify-content: center;
     width: 100%;
