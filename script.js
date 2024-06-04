@@ -14,13 +14,14 @@ function updateProgress() {
     progressText.textContent = currentProgress + '/' + maxProgress;
 }
 
-function decreaseProgress() {
+function decreaseProgress(touch) {
+    navigator.vibrate(200);
     if (currentProgress > 0) {
         currentProgress--;
         updateProgress();
         clickCount++;
         clickCounter.textContent = `${clickCount}`;
-        showFloatingNumber(event);
+        showFloatingNumber(touch);
     }
 }
 
@@ -31,15 +32,15 @@ function recoverProgress() {
     }
 }
 
-function showFloatingNumber(event) {
+function showFloatingNumber(touch) {
     const floatingNumber = document.createElement('div');
     floatingNumber.className = 'floating-number';
     floatingNumber.textContent = '+1';
     document.body.appendChild(floatingNumber);
 
     const rect = coin.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
     floatingNumber.style.left = `${rect.left + x}px`;
     floatingNumber.style.top = `${rect.top + y}px`;
 
@@ -60,7 +61,11 @@ function handleMenuClick(event) {
 
 setInterval(recoverProgress, 1000);
 
-coin.addEventListener('click', decreaseProgress);
+coin.addEventListener('touchstart', (event) => {
+    for (let touch of event.touches) {
+        decreaseProgress(touch);
+    }
+});
 
 menuItems.forEach(item => {
     item.addEventListener('click', handleMenuClick);

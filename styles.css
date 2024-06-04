@@ -5,7 +5,7 @@
 }
 
 html, body {
-    font-family: "Brush Script MT", cursive;
+    font-family: "Brush Script MT", sans-serif; /* Поміняти шрифт */
     height: 100vh;
     width: 100vw;
     overflow: hidden;
