@@ -1,9 +1,6 @@
-import { Vibrate } from "nativescript-vibrate";
-
 let maxProgress = 50;
 let currentProgress = 50;
 let clickCount = 0;
-let vibrator = new Vibrate();
 
 const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progress-text');
@@ -28,7 +25,6 @@ function decreaseProgress(event) {
     }
     updateProgress();
     clickCounter.textContent = `${clickCount}`;
-    vibrator.vibrate(1000);
 }
 
 function recoverProgress() {
