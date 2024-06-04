@@ -14,14 +14,16 @@ function updateProgress() {
     progressText.textContent = currentProgress + '/' + maxProgress;
 }
 
-function decreaseProgress(touch) {
+function decreaseProgress(event) {
     navigator.vibrate(200);
     if (currentProgress > 0) {
         currentProgress--;
         updateProgress();
         clickCount++;
         clickCounter.textContent = `${clickCount}`;
-        showFloatingNumber(touch);
+        for (let touch of event.touches) {
+            showFloatingNumber(touch);
+        }
     }
 }
 
@@ -61,12 +63,12 @@ function handleMenuClick(event) {
 
 setInterval(recoverProgress, 1000);
 
-coin.addEventListener('touchstart', (event) => {
-    event.preventDefault();
-    for (let touch of event.changedTouches) {
-        decreaseProgress(touch);
-    }
-}, { passive: false });
+// coin.addEventListener('touchstart', (event) => {
+//     event.preventDefault();
+//     for (let touch of event.changedTouches) {
+//         decreaseProgress(touch);
+//     }
+// }, { passive: false });
 
 menuItems.forEach(item => {
     item.addEventListener('click', handleMenuClick);
