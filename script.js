@@ -15,6 +15,7 @@ function updateProgress() {
 }
 
 function decreaseProgress(event) {
+    event.stopPropagation();
     if (currentProgress > 0) {
         currentProgress--;
         updateProgress();
