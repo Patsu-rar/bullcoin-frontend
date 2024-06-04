@@ -17,9 +17,9 @@ function updateProgress() {
 function decreaseProgress(event) {
     event.stopPropagation();
     if (currentProgress > 0) {
-        currentProgress--;
+        currentProgress -= event.touches.length;
         updateProgress();
-        clickCount++;
+        clickCount += event.touches.length;
         clickCounter.textContent = `${clickCount}`;
         for (let touch of event.touches) {
             showFloatingNumber(touch);
