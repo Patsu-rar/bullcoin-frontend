@@ -17,12 +17,15 @@ function updateProgress() {
 function decreaseProgress(event) {
     event.stopPropagation();
     if (currentProgress > 0) {
-        currentProgress -= event.touches.length;
-        updateProgress();
-        clickCount += event.touches.length;
-        clickCounter.textContent = `${clickCount}`;
-        for (let touch of event.touches) {
+        for (let touch of event.changedTouches) {
+            currentProgress--;
+            clickCount++;
             showFloatingNumber(touch);
+        }
+        updateProgress();
+        clickCounter.textContent = `${clickCount}`;
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
         }
     }
 }
