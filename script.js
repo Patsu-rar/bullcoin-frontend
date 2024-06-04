@@ -1,6 +1,9 @@
+import { Vibrate } from "nativescript-vibrate";
+
 let maxProgress = 50;
 let currentProgress = 50;
 let clickCount = 0;
+let vibrator = new Vibrate();
 
 const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progress-text');
@@ -16,18 +19,16 @@ function updateProgress() {
 
 function decreaseProgress(event) {
     event.stopPropagation();
-    if (currentProgress > 0) {
-        for (let touch of event.changedTouches) {
+    for (let touch of event.changedTouches) {
+        if (currentProgress > 0) {
             currentProgress--;
             clickCount++;
             showFloatingNumber(touch);
         }
-        updateProgress();
-        clickCounter.textContent = `${clickCount}`;
-        if (navigator.vibrate) {
-            navigator.vibrate(50);
-        }
     }
+    updateProgress();
+    clickCounter.textContent = `${clickCount}`;
+    vibrator.vibrate(1000);
 }
 
 function recoverProgress() {
