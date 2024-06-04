@@ -65,7 +65,7 @@ coin.addEventListener('touchstart', (event) => {
     for (let touch of event.touches) {
         decreaseProgress(touch);
     }
-});
+}, { passive: false });
 
 menuItems.forEach(item => {
     item.addEventListener('click', handleMenuClick);
