@@ -15,7 +15,6 @@ function updateProgress() {
 }
 
 function decreaseProgress(event) {
-    navigator.vibrate(200);
     if (currentProgress > 0) {
         currentProgress--;
         updateProgress();
