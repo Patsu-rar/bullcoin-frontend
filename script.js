@@ -62,7 +62,8 @@ function handleMenuClick(event) {
 setInterval(recoverProgress, 1000);
 
 coin.addEventListener('touchstart', (event) => {
-    for (let touch of event.touches) {
+    event.preventDefault();
+    for (let touch of event.changedTouches) {
         decreaseProgress(touch);
     }
 }, { passive: false });
