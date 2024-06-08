@@ -81,6 +81,23 @@ function showFloatingNumber(touch) {
     }, 2000);
 }
 
+function copyToClipboard() {
+    const link = document.querySelector('.ref-url');
+    const copyBtn = document.querySelector('.ref-btn');
+
+    navigator.clipboard.writeText(link.textContent).then(() => {
+        copyBtn.textContent = 'Copied';
+        copyBtn.disabled = true;
+
+        setTimeout(() => {
+            copyBtn.textContent = 'Copy';
+            copyBtn.disabled = false;
+        }, 2000);
+    }).catch(err => {
+        console.log('Failed to copy the link.');
+    });
+}
+
 function handleMenuClick(event) {
     const target = event.target.getAttribute('data-target');
 
