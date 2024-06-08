@@ -7,13 +7,13 @@
     <title>Bullcoin</title>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="main-container">
         <div class="content-container" id="content-container">
             <div id="home-content" class="content active">
                 <div class="coin-counter" id="click-counter">
                     0
                 </div>
-                <img src="assets/images/coin_icon_1.png" alt="coin_icon"
+                <img src="assets/images/bull_icon_1.png" alt="coin_icon"
                      class="coin-icon" id="coin" ontouchstart="decreaseProgress(event)">
                 <div class="progress-container">
                     <div id="progress-bar"></div>
@@ -22,16 +22,36 @@
             </div>
             <div id="tasks-content" class="content">Task Content</div>
             <div id="boosts-content" class="content">Boost Content</div>
-            <div id="ref-content" class="content">Referral Content</div>
+            <div id="ref-content" class="content">
+                <div class="ref-wrapper">
+                    <div class="coin-counter ref-counter" id="ref-counter">
+                        0 Referrals
+                    </div>
+                    <div class="ref-link-container">
+                        <div class="ref-info">
+                            <div class="ref-text">My invite link:</div>
+                            <button type="button" class="ref-btn">Copy</button>
+                        </div>
+                        <div class="ref-link">
+                            <a class="ref-link">https://t.me/bullco1n_bot</a>
+                        </div>
+                    </div>
+                    <div class="ref-friends">
+                        <div class="ref-friends-header">My Referrals:</div>
+                        <div class="ref-list"></div>
+                        <div class="ref-empty">You don't have referrals &#128546;</div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="menu">
             <img src="assets/images/home_icon.png" alt="coin_icon" class="menu-icon"
                  id="home" data-target="home-content">
             <img src="assets/images/tasks_icon.png" alt="coin_icon" class="menu-icon"
                  id="tasks" data-target="tasks-content">
-            <img src="assets/images/boosts_icon.png" alt="coin_icon" class="menu-icon"
+            <img src="assets/images/boost_icon.png" alt="coin_icon" class="menu-icon"
                  id="boosts" data-target="boosts-content">
-            <img src="assets/images/ref_icon.png" alt="coin_icon" class="menu-icon"
+            <img src="assets/images/friends_icon.png" alt="coin_icon" class="menu-icon"
                  id="referral" data-target="ref-content">
         </div>
     </div>
