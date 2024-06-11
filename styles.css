@@ -33,6 +33,10 @@ html, body {
     color: white;
     font-size: 60px;
     font-weight: 700;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .progress-container {
@@ -67,7 +71,11 @@ html, body {
 }
 
 .content {
-    display: none;
+    visibility: hidden;
+    position: absolute;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
     margin-top: 20px;
     color: white;
     font-size: 18px;
@@ -75,9 +83,87 @@ html, body {
 }
 
 .content.active {
+    visibility: visible;
+    position: relative;
+}
+
+.tasks-wrapper {
+    width: 100%;
+}
+
+.tasks-navigation {
     display: flex;
-    flex-flow: column;
+    width: 100%;
+    border: 2px solid #ffffff;
+    border-radius: 10px;
+    padding: 5px;
+    margin-top: 10px;
+    gap: 5px;
+}
+
+.navigation-item {
+    display: flex;
+    width: 50%;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.navigation-item.active {
+    background: rgba(255, 255, 255, 0.5);
+    color: #000;
+}
+
+.tasks-list {
+    position: relative;
+    overflow-y: scroll;
+    height: 55vh;
+    margin-top: 15px;
+}
+
+.tasks-list-content {
+    position: absolute;
+    visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tasks-list-content.active {
+    position: relative;
+    visibility: visible;
+}
+
+.task-list-item {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    padding: 10px 15px 10px 10px;
+    background: rgba(255, 255, 255, 0.5);
+    color: #000;
+    border-radius: 15px;
+}
+
+.task-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.task-list-icon {
+    height: 40px;
+}
+
+.task-list-title {
+
+}
+
+.task-list-bonus {
+
+}
+
+.task-list-redirect-icon {
+
 }
 
 .ref-wrapper {
@@ -91,8 +177,6 @@ html, body {
 }
 
 .ref-counter {
-    display: flex;
-    justify-content: center;
     margin-bottom: 30px;
 }
 

@@ -16,12 +16,13 @@ const users = [
     },
 ];
 
-// const users = [];
+let tasks;
 
+// const users = [];
 
 let maxProgress = 50;
 let currentProgress = 50;
-let clickCount = 0;
+let clickCount = 9999999999999;
 
 const mainContainer = document.getElementById('main-container');
 
@@ -29,12 +30,22 @@ const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progress-text');
 
 const coin = document.getElementById('coin');
-const clickCounter = document.getElementById('click-counter');
+const clickCounter = document.querySelectorAll('.coin-counter');
+
+for (let el of clickCounter) {
+    el.textContent = `${clickCount}`;
+}
+
+adjustFontSize(clickCounter[0]);
+
+const tasksNavigationItems = document.querySelectorAll('.navigation-item');
+const taskListContents = document.querySelectorAll('.tasks-list-content');
+const specialTaskList = document.getElementById('special-tasks');
+const refTaskList = document.getElementById('ref-tasks');
 
 const menuItems = document.querySelectorAll('.menu-icon');
 const contents = document.querySelectorAll('.content');
 
-const refCounter = document.getElementById('ref-counter');
 const refEmptyMessage = document.querySelector('.ref-empty');
 const refList = document.querySelector('.ref-list');
 
@@ -44,8 +55,18 @@ function updateProgress() {
     progressText.textContent = currentProgress + '/' + maxProgress;
 }
 
+function adjustFontSize(el) {
+    let fontSize = parseInt(window.getComputedStyle(el).fontSize);
+
+    while (el.scrollWidth > 340 && fontSize > 10) {
+        fontSize--;
+        el.style.fontSize = `${fontSize}px`;
+    }
+}
+
 function decreaseProgress(event) {
     event.stopPropagation();
+
     for (let touch of event.changedTouches) {
         if (currentProgress > 0) {
             currentProgress--;
@@ -54,7 +75,10 @@ function decreaseProgress(event) {
         }
     }
     updateProgress();
-    clickCounter.textContent = `${clickCount}`;
+    for (let el of clickCounter) {
+        el.textContent = `${clickCount}`;
+    }
+    adjustFontSize(clickCounter[0]);
 }
 
 function recoverProgress() {
@@ -98,10 +122,33 @@ function copyToClipboard() {
     });
 }
 
+function handleTasksClick(event) {
+    const target = event.target.getAttribute('data-target');
+
+    tasksNavigationItems.forEach(item => {
+        item.classList.remove('active');
+    });
+
+    taskListContents.forEach(content => {
+        content.classList.remove('active');
+    });
+
+    event.target.classList.add('active');
+    document.getElementById(target).classList.add('active');
+}
+
 function handleMenuClick(event) {
     const target = event.target.getAttribute('data-target');
 
     contents.forEach(content => {
+        content.classList.remove('active');
+    });
+
+    tasksNavigationItems.forEach(item => {
+        item.classList.remove('active');
+    });
+
+    taskListContents.forEach(content => {
         content.classList.remove('active');
     });
 
@@ -116,17 +163,160 @@ function handleMenuClick(event) {
     refList.replaceChildren();
 
     if (target === 'home-content') {
+        const homeContentCounter = document.querySelectorAll('.coin-counter')[0];
 
+        adjustFontSize(homeContentCounter);
     } else if (target === 'tasks-content') {
+        const tasksContentCounter = document.querySelectorAll('.coin-counter')[1];
 
+        tasksNavigationItems[0].classList.add('active');
+        taskListContents[0].classList.add('active');
+
+        // api call for tasks
+        if (!tasks) {
+            tasks = {
+                special: [
+                    {
+                        title: 'Subscribe to Telegram channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Subscribe to Twitter channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Subscribe to Instagram channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Subscribe to TikTok channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Subscribe to TikTok channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Subscribe to TikTok channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Subscribe to TikTok channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Subscribe to TikTok channel',
+                        url: 'https://telegram.telegram.org',
+                        bonus: 200000
+                    },
+                ],
+                referral: [
+                    {
+                        title: 'Invite 1 friend',
+                        invited: 1,
+                        bonus: 2500
+                    },
+                    {
+                        title: 'Invite 3 friends',
+                        invited: 1,
+                        bonus: 50000
+                    },
+                    {
+                        title: 'Invite 10 friends',
+                        invited: 1,
+                        bonus: 200000
+                    },
+                    {
+                        title: 'Invite 25 friends',
+                        invited: 1,
+                        bonus: 250000
+                    },
+                    {
+                        title: 'Invite 50 friends',
+                        invited: 1,
+                        bonus: 300000
+                    },
+                    {
+                        title: 'Invite 100 friends',
+                        invited: 1,
+                        bonus: 500000
+                    },
+                    {
+                        title: 'Invite 500 friends',
+                        invited: 1,
+                        bonus: 2000000
+                    },
+                    {
+                        title: 'Invite 1000 friends',
+                        invited: 1,
+                        bonus: 2500000
+                    },
+                    {
+                        title: 'Invite 10000 friends',
+                        invited: 1,
+                        bonus: 10000000
+                    },
+                    {
+                        title: 'Invite 100000 friends',
+                        invited: 1,
+                        bonus: 100000000
+                    }
+                ]
+            };
+
+            for (let task of tasks.special) {
+                const taskListItem = document.createElement('div');
+
+                const taskRightSide = document.createElement('div');
+                const taskIcon = document.createElement('img');
+                const taskTitle = document.createElement('div');
+                const taskBonus = document.createElement('div');
+                const taskRedirectIcon = document.createElement('div');
+                const taskInfoWrapper = document.createElement('div');
+
+                taskListItem.className = 'task-list-item';
+                taskInfoWrapper.className = 'task-info-wrapper';
+                taskIcon.className = 'task-list-icon';
+                taskTitle.className = 'task-list-title';
+                taskBonus.className = 'task-list-bonus';
+                taskRedirectIcon.className = 'task-list-redirect-icon';
+
+                taskIcon.src = './assets/images/task_icon.png';
+                taskTitle.textContent = task.title;
+                taskBonus.textContent = task.bonus;
+                taskRedirectIcon.textContent = '>';
+
+                taskRightSide.style.display = 'flex';
+                taskRightSide.style.alignItems = 'center';
+
+                taskInfoWrapper.append(taskTitle, taskBonus);
+                taskRightSide.append(taskIcon, taskInfoWrapper);
+                taskListItem.append(taskRightSide, taskRedirectIcon);
+                taskListContents[0].appendChild(taskListItem);
+            }
+        }
+
+        adjustFontSize(tasksContentCounter);
     } else if (target === 'boosts-content') {
+        const boostsContentCounter = document.querySelectorAll('.coin-counter')[2];
 
+        adjustFontSize(boostsContentCounter);
     } else if (target === 'ref-content') {
         // some api call(mock for now)
+        const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
         if (users.length !== 0) {
             refList.style.display = 'flex';
             refEmptyMessage.style.display = 'none';
-            refCounter.textContent = `${users.length} Referrals`
+            refContentCounter.textContent = `${users.length} Referralsssssssss`
+            adjustFontSize(refContentCounter);
 
             for (let user of users) {
                 const refListItem = document.createElement('div');
@@ -146,7 +336,7 @@ function handleMenuClick(event) {
         } else {
             refList.style.display = 'none';
             refEmptyMessage.style.display = 'flex';
-            refCounter.textContent = `${users.length} Referrals`
+            refContentCounter.textContent = `${users.length} Referrals`
         }
     }
 
@@ -158,5 +348,9 @@ setInterval(recoverProgress, 1000);
 menuItems.forEach(item => {
     item.addEventListener('click', handleMenuClick);
 });
+
+tasksNavigationItems.forEach(item => {
+    item.addEventListener('click', handleTasksClick);
+})
 
 updateProgress();

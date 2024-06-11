@@ -10,9 +10,7 @@
     <div class="container" id="main-container">
         <div class="content-container" id="content-container">
             <div id="home-content" class="content active">
-                <div class="coin-counter" id="click-counter">
-                    0
-                </div>
+                <div class="coin-counter"></div>
                 <img src="assets/images/bull_icon_1.png" alt="coin_icon"
                      class="coin-icon" id="coin" ontouchstart="decreaseProgress(event)">
                 <div class="progress-container">
@@ -20,13 +18,29 @@
                     <div class="progress-text" id="progress-text">500/500</div>
                 </div>
             </div>
-            <div id="tasks-content" class="content">Task Content</div>
-            <div id="boosts-content" class="content">Boost Content</div>
+            <div id="tasks-content" class="content">
+                <div class="tasks-wrapper">
+                    <div class="coin-counter"></div>
+                    <div class="tasks-navigation">
+                        <div class="navigation-item" data-target="special-tasks">
+                            Special
+                        </div>
+                        <div class="navigation-item" data-target="ref-tasks">
+                            Ref Tasks
+                        </div>
+                    </div>
+                    <div class="tasks-list">
+                        <div class="tasks-list-content" id="special-tasks"></div>
+                        <div class="tasks-list-content" id="ref-tasks"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="boosts-content" class="content">
+                <div class="coin-counter"></div>
+            </div>
             <div id="ref-content" class="content">
                 <div class="ref-wrapper">
-                    <div class="coin-counter ref-counter" id="ref-counter">
-                        0 Referrals
-                    </div>
+                    <div class="coin-counter ref-counter" id="ref-counter"></div>
                     <div class="ref-link-container">
                         <div class="ref-info">
                             <div class="ref-text">My invite link:</div>
