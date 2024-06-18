@@ -12,6 +12,10 @@ html, body {
     background-color: #000000;
 }
 
+.main-coin-icon {
+    width: 50px;
+}
+
 .container {
     display: flex;
     flex-direction: column;
@@ -29,11 +33,14 @@ html, body {
 }
 
 .coin-counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     margin-top: 1%;
     color: white;
     font-size: 60px;
     font-weight: 700;
-    display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -154,29 +161,85 @@ html, body {
     height: 40px;
 }
 
-.task-list-title {
+.boosts-wrapper {
 
 }
 
-.task-list-bonus {
-
+.daily-boosters {
+    margin-top: 10%;
+    padding-top: 5%;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.task-list-redirect-icon {
+.daily-boosters-title {
+    font-weight: 600;
+    margin-bottom: 3%;
+}
 
+.daily-boosters-wrapper {
+    display: flex;
+    gap: 5%;
+}
+
+.daily-boosters-item {
+    width: 50%;
+    display: flex;
+    gap: 5%;
+    align-items: center;
+    box-shadow: inset 0 0 300px 200px rgba(0,0,0,0.15);
+    border-radius: 10px;
+    padding: 3%;
+    font-size: 14px;
+}
+
+.boosters-icon {
+    width: 20%;
+}
+
+.boosters-item-title {
+    font-weight: 600;
+}
+
+.general-boosters {
+    margin-top: 7%;
+}
+
+.general-boosters-title {
+    font-weight: 600;
+}
+
+.general-boosters-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4%;
+}
+
+.boost-list-item {
+    display: flex;
+    gap: 2%;
+}
+
+.boost-item-icon {
+    width: 10%;
 }
 
 .ref-wrapper {
-    width: 100%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 90%;
 }
 
 .ref-link-container {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     padding: 20px 25px;
+    width: 100%;
 }
 
 .ref-counter {
+    display: inline-block;
     margin-bottom: 30px;
 }
 
@@ -192,16 +255,16 @@ html, body {
 
 .ref-btn {
     font-size: 20px;
-    padding: 5px 25px;
+    padding: 5px 15px;
     color: #ffffff;
     background: linear-gradient(156deg, rgba(104, 255, 154, 1) 0%, rgba(0, 83, 26, 1) 100%);
     border: none;
     border-radius: 15px;
-    transition: all ease 0.5s;
 }
 
-.ref-btn:hover {
-    box-shadow: inset 0 0 19px 0 rgba(29, 143, 0, 0.7);
+.ref-btn:disabled {
+    background: rgba(0, 0, 0, 0.5);
+    color: linen;
 }
 
 .ref-link {
@@ -224,6 +287,7 @@ html, body {
 .ref-friends {
     margin-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.5);
+    width: 100%;
 }
 
 .ref-friends-header {
@@ -261,7 +325,7 @@ html, body {
     justify-content: center;
     gap: 10px;
     width: 100%;
-    padding: 10px;
+    padding: 10px 20px;
     border-radius: 10px;
 }
 
@@ -283,7 +347,7 @@ html, body {
 }
 
 .menu-icon {
-    width: 80px;
+    width: 23%;
 }
 
 @keyframes floatUp {

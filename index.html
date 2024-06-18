@@ -7,69 +7,95 @@
     <title>Bullcoin</title>
 </head>
 <body>
-    <div class="container" id="main-container">
-        <div class="content-container" id="content-container">
-            <div id="home-content" class="content active">
-                <div class="coin-counter"></div>
-                <img src="assets/images/bull_icon_1.png" alt="coin_icon"
-                     class="coin-icon" id="coin" ontouchstart="decreaseProgress(event)">
-                <div class="progress-container">
-                    <div id="progress-bar"></div>
-                    <div class="progress-text" id="progress-text">500/500</div>
-                </div>
+<div class="container" id="main-container">
+    <div class="content-container" id="content-container">
+        <div id="home-content" class="content active">
+            <div class="coin-counter"></div>
+            <img src="assets/images/bull_icon_1.png" alt="coin_icon"
+                 class="coin-icon" id="coin" ontouchstart="decreaseProgress(event)">
+            <div class="progress-container">
+                <div id="progress-bar"></div>
+                <div class="progress-text" id="progress-text">500/500</div>
             </div>
-            <div id="tasks-content" class="content">
-                <div class="tasks-wrapper">
-                    <div class="coin-counter"></div>
-                    <div class="tasks-navigation">
-                        <div class="navigation-item" data-target="special-tasks">
-                            Special
-                        </div>
-                        <div class="navigation-item" data-target="ref-tasks">
-                            Ref Tasks
-                        </div>
+        </div>
+        <div id="tasks-content" class="content">
+            <div class="tasks-wrapper">
+                <div class="coin-counter"></div>
+                <div class="tasks-navigation">
+                    <div class="navigation-item" data-target="special-tasks">
+                        Special
                     </div>
-                    <div class="tasks-list">
-                        <div class="tasks-list-content" id="special-tasks"></div>
-                        <div class="tasks-list-content" id="ref-tasks"></div>
+                    <div class="navigation-item" data-target="ref-tasks">
+                        Ref Tasks
                     </div>
                 </div>
-            </div>
-            <div id="boosts-content" class="content">
-                <div class="coin-counter"></div>
-            </div>
-            <div id="ref-content" class="content">
-                <div class="ref-wrapper">
-                    <div class="coin-counter ref-counter" id="ref-counter"></div>
-                    <div class="ref-link-container">
-                        <div class="ref-info">
-                            <div class="ref-text">My invite link:</div>
-                            <button type="button" class="ref-btn" onclick="copyToClipboard()">Copy</button>
-                        </div>
-                        <div class="ref-link">
-                            <a class="ref-url">https://t.me/bullco1n_bo3333333333333333333333333333333333333333333333333333333333333333333t</a>
-                        </div>
-                    </div>
-                    <div class="ref-friends">
-                        <div class="ref-friends-header">My Referrals:</div>
-                        <div class="ref-list"></div>
-                        <div class="ref-empty">You don't have referrals &#128546;</div>
-                    </div>
+                <div class="tasks-list">
+                    <div class="tasks-list-content" id="special-tasks"></div>
+                    <div class="tasks-list-content" id="ref-tasks"></div>
                 </div>
             </div>
         </div>
-        <div class="menu">
-            <img src="assets/images/home_icon.png" alt="coin_icon" class="menu-icon"
-                 id="home" data-target="home-content">
-            <img src="assets/images/tasks_icon.png" alt="coin_icon" class="menu-icon"
-                 id="tasks" data-target="tasks-content">
-            <img src="assets/images/boost_icon.png" alt="coin_icon" class="menu-icon"
-                 id="boosts" data-target="boosts-content">
-            <img src="assets/images/friends_icon.png" alt="coin_icon" class="menu-icon"
-                 id="referral" data-target="ref-content">
+        <div id="boosts-content" class="content">
+            <div class="boosts-wraper">
+                <div class="coin-counter"></div>
+                <div class="daily-boosters">
+                    <div class="daily-boosters-title">Your daily boosters:</div>
+                    <div class="daily-boosters-wrapper">
+                        <div class="daily-boosters-item">
+                            <img src="assets/images/tapping_guru_icon.png" alt="full_tank_icon" style="width: 20%;">
+                            <div style="display: flex; flex-direction: column">
+                                <div class="boosters-item-title">Tapping Guru</div>
+                                <div class="boosters-quantity">3/3</div>
+                            </div>
+                        </div>
+                        <div class="daily-boosters-item">
+                            <img src="assets/images/energy.png" alt="full_tank_icon" style="width: 15%;">
+                            <div style="display: flex; flex-direction: column">
+                                <div class="boosters-item-title">Full Tank</div>
+                                <div class="boosters-quantity">3/3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="general-boosters">
+                    <div class="general-boosters-title">Boosters:</div>
+                    <div class="general-boosters-list"></div>
+                </div>
+            </div>
+        </div>
+        <div id="ref-content" class="content">
+            <div class="ref-wrapper">
+                <div class="coin-counter ref-counter" id="ref-counter"></div>
+                <div class="ref-link-container">
+                    <div class="ref-info">
+                        <div class="ref-text">My invite link:</div>
+                        <button type="button" class="ref-btn" onclick="copyToClipboard()">Copy</button>
+                    </div>
+                    <div class="ref-link">
+                        <a class="ref-url">https://t.me/bullco1n_bo3333333333333333333333333333333333333333333333333333333333333333333t</a>
+                    </div>
+                </div>
+                <div class="ref-friends">
+                    <div class="ref-friends-header">My Referrals:</div>
+                    <div class="ref-list"></div>
+                    <div class="ref-empty">You don't have referrals &#128546;</div>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="menu">
+        <img src="assets/images/home_icon.png" alt="coin_icon" class="menu-icon"
+             id="home" data-target="home-content">
+        <img src="assets/images/tasks_icon.png" alt="coin_icon" class="menu-icon"
+             id="tasks" data-target="tasks-content">
+        <img src="assets/images/boost_icon.png" alt="coin_icon" class="menu-icon"
+             id="boosts" data-target="boosts-content">
+        <img src="assets/images/friends_icon.png" alt="coin_icon" class="menu-icon"
+             id="referral" data-target="ref-content">
+    </div>
+</div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js" async></script>
 </body>
 </html>
