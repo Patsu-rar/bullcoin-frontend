@@ -71,16 +71,25 @@ function initTg() {
 }
 
 let maxProgress = 50;
-let currentProgress = 50;
+let currentProgress;
 let clickCount;
 
 let storageScore = +localStorage.getItem('score');
+let storageProgress = +localStorage.getItem('progress');
 
 if (storageScore) {
     clickCount = storageScore;
 } else {
     clickCount = 0;
 }
+
+if (storageScore) {
+    currentProgress = storageProgress;
+} else {
+    currentProgress = 0;
+}
+
+
 
 const coinIcon = document.createElement('img');
 coinIcon.src = './assets/images/bullcoin_icon.png';
@@ -155,6 +164,7 @@ function decreaseProgress(event) {
             clickCount++;
             showFloatingNumber(touch);
             localStorage.setItem('score', `${clickCount}`);
+            localStorage.setItem('progress', `${currentProgress}`);
         }
     }
     updateProgress();
@@ -177,6 +187,7 @@ function decreaseProgress(event) {
 function recoverProgress() {
     if (currentProgress < maxProgress) {
         currentProgress++;
+        localStorage.setItem('progress', currentProgress)
         updateProgress();
     }
 }
