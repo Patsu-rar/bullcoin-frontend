@@ -146,6 +146,8 @@ function decreaseProgress(event) {
             currentProgress--;
             clickCount++;
             showFloatingNumber(touch);
+            localStorage.setItem('score', `${clickCount}`);
+            clickCount = +localStorage.getItem('score') + 10;
         }
     }
     updateProgress();
