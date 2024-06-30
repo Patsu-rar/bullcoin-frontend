@@ -82,7 +82,7 @@ function initTg() {
         }
         Telegram.WebApp.onEvent('viewportChanged', function () {
             console.log(Telegram.WebApp.viewportHeight);
-            if (Telegram.WebApp.viewportHeight === 0) {
+            if (Telegram.WebApp.viewportHeight <= 150) {
                 const closedTime = new Date().toUTCString();
                 localStorage.setItem('closedTime', closedTime);
                 document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
