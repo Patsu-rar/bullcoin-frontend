@@ -86,8 +86,6 @@ function initTg() {
                 inputField.focus();
             }
         });
-        let testTime = new Date().toUTCString();
-        test.innerHTML = testTime;
 
         Telegram.WebApp.onEvent('close', function () {
             localStorage.setItem('closedTime', `${new Date().toUTCString()}`);
