@@ -46,9 +46,29 @@ const boosters = [
 let tasks;
 let boostsLoaded = false;
 
-// const users = [];
+let maxProgress = 50;
+let currentProgress;
+let clickCount;
 
-// Ensure Telegram Web App is initialized and ready
+let storageScore = +localStorage.getItem('score');
+let storageProgress = +localStorage.getItem('progress');
+
+let now = new Date();
+let utcTime = now.toUTCString();
+let localTime = now.toLocaleString();
+
+if (storageScore) {
+    clickCount = storageScore;
+} else {
+    clickCount = 0;
+}
+
+if (storageScore) {
+    currentProgress = storageProgress;
+} else {
+    currentProgress = 0;
+}
+
 function initTg() {
     if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
         Telegram.WebApp.ready(function () {
@@ -64,30 +84,17 @@ function initTg() {
                 }
             });
         });
+
+        Telegram.WebApp.onEvent('close', function () {
+
+        })
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
         setTimeout(initTg, 500);
     }
 }
 
-let maxProgress = 50;
-let currentProgress;
-let clickCount;
-
-let storageScore = +localStorage.getItem('score');
-let storageProgress = +localStorage.getItem('progress');
-
-if (storageScore) {
-    clickCount = storageScore;
-} else {
-    clickCount = 0;
-}
-
-if (storageScore) {
-    currentProgress = storageProgress;
-} else {
-    currentProgress = 0;
-}
+initTg()
 
 
 
