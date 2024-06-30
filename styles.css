@@ -124,7 +124,7 @@ html, body {
 .tasks-list {
     position: relative;
     overflow-y: scroll;
-    height: 55vh;
+    height: 50vh;
     margin-top: 15px;
 }
 

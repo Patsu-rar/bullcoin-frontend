@@ -87,6 +87,7 @@ function initTg() {
         Telegram.WebApp.onEvent('close', function () {
             localStorage.setItem('closedTime', `${new Date().toUTCString()}`);
             let testTime = localStorage.getItem('closedTime');
+            test.innerHTML = testTime;
             if (testTime) {
                 test.innerHTML = testTime;
             }
