@@ -88,11 +88,17 @@ function initTg() {
             }
         });
 
-        Telegram.WebView.onEvent('close', function () {
+        // Telegram.WebView.receiveEvent('close', function () {
+        //     const closedTime = new Date().toUTCString();
+        //     localStorage.setItem('closedTime', closedTime);
+        //     document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
+        // });
+
+        window.addEventListener('beforeunload', function () {
             const closedTime = new Date().toUTCString();
             localStorage.setItem('closedTime', closedTime);
             document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
-        })
+        });
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
         setTimeout(initTg, 100);
