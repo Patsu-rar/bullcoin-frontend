@@ -80,14 +80,6 @@ function initTg() {
         if (!Telegram.WebApp.isExpanded) {
             Telegram.WebApp.expand();
         }
-        Telegram.WebApp.onEvent('viewportChanged', function () {
-            console.log(Telegram.WebApp.viewportHeight);
-            if (Telegram.WebApp.viewportHeight <= 150) {
-                const closedTime = new Date().toUTCString();
-                localStorage.setItem('closedTime', closedTime);
-                document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
-            }
-        });
 
         document.addEventListener("DOMContentLoaded", function() {
             const closedTime = localStorage.getItem('closedTime');
@@ -95,6 +87,12 @@ function initTg() {
                 document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
             }
         });
+
+        Telegram.WebView.onEvent('close', function () {
+            const closedTime = new Date().toUTCString();
+            localStorage.setItem('closedTime', closedTime);
+            document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
+        })
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
         setTimeout(initTg, 100);
