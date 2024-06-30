@@ -86,7 +86,7 @@ function initTg() {
         });
 
         Telegram.WebApp.onEvent('close', function () {
-            maxProgress += 10;
+            localStorage.setItem('progress', `${storageProgress += 10}`);
         })
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
