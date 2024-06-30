@@ -81,12 +81,12 @@ function initTg() {
             Telegram.WebApp.expand();
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const closedTime = localStorage.getItem('closedTime');
-            if (closedTime) {
-                document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
-            }
-        });
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     const closedTime = localStorage.getItem('closedTime');
+        //     if (closedTime) {
+        //         document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
+        //     }
+        // });
 
         // Telegram.WebView.receiveEvent('close', function () {
         //     const closedTime = new Date().toUTCString();
@@ -94,7 +94,8 @@ function initTg() {
         //     document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
         // });
 
-        window.addEventListener('beforeunload', function () {
+        window.addEventListener('beforeunload', function (e) {
+            e.preventDefault();
             const closedTime = new Date().toUTCString();
             localStorage.setItem('closedTime', closedTime);
             document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
