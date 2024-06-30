@@ -81,15 +81,20 @@ function initTg() {
             Telegram.WebApp.expand();
         }
         Telegram.WebApp.onEvent('viewportChanged', function () {
-            let inputField = document.getElementById("inputField");
-            if (inputField) {
-                inputField.focus();
+            console.log(Telegram.WebApp.viewportHeight);
+            if (Telegram.WebApp.viewportHeight === 0) {
+                const closedTime = new Date().toUTCString();
+                localStorage.setItem('closedTime', closedTime);
+                document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
             }
         });
 
-        Telegram.WebApp.onEvent('close', function () {
-            localStorage.setItem('closedTime', `${new Date().toUTCString()}`);
-        })
+        document.addEventListener("DOMContentLoaded", function() {
+            const closedTime = localStorage.getItem('closedTime');
+            if (closedTime) {
+                document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
+            }
+        });
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
         setTimeout(initTg, 100);
