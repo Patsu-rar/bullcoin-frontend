@@ -70,6 +70,9 @@ if (storageScore) {
 }
 
 const test = document.getElementById('test');
+if (localStorage.getItem('closedTime')) {
+    test.innerHTML = localStorage.getItem('closedTime');
+}
 
 
 function initTg() {
@@ -83,15 +86,11 @@ function initTg() {
                 inputField.focus();
             }
         });
+        let testTime = new Date().toUTCString();
+        test.innerHTML = testTime;
 
         Telegram.WebApp.onEvent('close', function () {
             localStorage.setItem('closedTime', `${new Date().toUTCString()}`);
-            let testTime = localStorage.getItem('closedTime');
-            test.innerHTML = testTime;
-            if (testTime) {
-                test.innerHTML = testTime;
-            }
-
         })
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
