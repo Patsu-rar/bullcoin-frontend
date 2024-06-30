@@ -69,10 +69,17 @@ if (storageScore) {
     currentProgress = 0;
 }
 
+const test = document.getElementById('test');
+
+
 function initTg() {
+    console.log(1);
     if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+        console.log(Telegram.WebApp.isExpanded);
+        test.innerHTML = Telegram.WebApp.isExpanded;
         Telegram.WebApp.ready(function () {
             if (!Telegram.WebApp.isExpanded) {
+                console.log(3);
                 Telegram.WebApp.expand();
             }
 
@@ -86,17 +93,15 @@ function initTg() {
         });
 
         Telegram.WebApp.onEvent('close', function () {
-            localStorage.setItem('progress', `${storageProgress += 10}`);
+            localStorage.setItem('closedTime', `${new Date().toUTCString()}`);
         })
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
-        setTimeout(initTg, 500);
+        setTimeout(initTg, 100);
     }
 }
 
 initTg()
-
-
 
 const coinIcon = document.createElement('img');
 coinIcon.src = './assets/images/bullcoin_icon.png';
