@@ -73,27 +73,24 @@ const test = document.getElementById('test');
 
 
 function initTg() {
-    console.log(1);
     if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
-        console.log(Telegram.WebApp.isExpanded);
-        test.innerHTML = Telegram.WebApp.isExpanded;
-        Telegram.WebApp.ready(function () {
-            if (!Telegram.WebApp.isExpanded) {
-                console.log(3);
-                Telegram.WebApp.expand();
+        if (!Telegram.WebApp.isExpanded) {
+            Telegram.WebApp.expand();
+        }
+        Telegram.WebApp.onEvent('viewportChanged', function () {
+            let inputField = document.getElementById("inputField");
+            if (inputField) {
+                inputField.focus();
             }
-
-            // Listen for the 'viewportChanged' event
-            Telegram.WebApp.onEvent('viewportChanged', function () {
-                let inputField = document.getElementById("inputField");
-                if (inputField) {
-                    inputField.focus();
-                }
-            });
         });
 
         Telegram.WebApp.onEvent('close', function () {
             localStorage.setItem('closedTime', `${new Date().toUTCString()}`);
+            let testTime = localStorage.getItem('closedTime');
+            if (testTime) {
+                test.innerHTML = testTime;
+            }
+
         })
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
