@@ -1,137 +1,18 @@
-const users = [
-    {
-        username: 'micro',
-    },
-    {
-        username: 'chelik',
-    },
-    {
-        username: 'chubrik',
-    },
-    {
-        username: 'loh',
-    },
-    {
-        username: 'qwerty',
-    },
-];
+const BACKEND_URL = 'http://localhost:5000';
 
-const boosters = [
-    {
-        title: 'Multitap',
-        price: 500,
-        level: 1,
-        imgRef: 'bullcoin_icon.png'
-    },
-    {
-        title: 'Energy Limit',
-        price: 500,
-        level: 1,
-        imgRef: 'energy.png'
-    },
-    {
-        title: 'Recharging Speed',
-        price: 500,
-        level: 1,
-        imgRef: 'recharging.png'
-    },
-    {
-        title: 'Tap Bot',
-        price: 500,
-        level: 1,
-        imgRef: 'tapbot.png'
-    },
-]
-
-let tasks;
-let boostsLoaded = false;
-
-let maxProgress = 50;
-let currentProgress;
-let clickCount;
-
-let storageScore = +localStorage.getItem('score');
-let storageProgress = +localStorage.getItem('progress');
-
-let now = new Date();
-let utcTime = now.toUTCString();
-let localTime = now.toLocaleString();
-
-if (storageScore) {
-    clickCount = storageScore;
-} else {
-    clickCount = 0;
-}
-
-if (storageScore) {
-    currentProgress = storageProgress;
-} else {
-    currentProgress = 0;
-}
-
-const test = document.getElementById('test');
-if (localStorage.getItem('closedTime')) {
-    test.innerHTML = localStorage.getItem('closedTime');
-}
-
-
-function initTg() {
-    if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
-        if (!Telegram.WebApp.isExpanded) {
-            Telegram.WebApp.expand();
-        }
-
-        // document.addEventListener("DOMContentLoaded", function() {
-        //     const closedTime = localStorage.getItem('closedTime');
-        //     if (closedTime) {
-        //         document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
-        //     }
-        // });
-
-        // Telegram.WebView.receiveEvent('close', function () {
-        //     const closedTime = new Date().toUTCString();
-        //     localStorage.setItem('closedTime', closedTime);
-        //     document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
-        // });
-
-        window.addEventListener('beforeunload', function (e) {
-            e.preventDefault();
-            const closedTime = new Date().toUTCString();
-            localStorage.setItem('closedTime', closedTime);
-            document.getElementById('test').innerText = `Last closed at: ${closedTime}`;
-        });
-    } else {
-        console.log('Telegram WebApp is undefined, retrying…');
-        setTimeout(initTg, 100);
-    }
-}
-
-initTg()
+const loader = document.querySelector('.loader');
+const menuWrapper = document.querySelector('.menu');
 
 const coinIcon = document.createElement('img');
 coinIcon.src = './assets/images/bullcoin_icon.png';
 
 const mainContainer = document.getElementById('main-container');
 
-const progressBar = document.getElementById('progress-bar');
-const progressText = document.getElementById('progress-text');
+const energyBar = document.getElementById('progress-bar');
+const energyBarText = document.getElementById('progress-text');
 
 const coin = document.getElementById('coin');
 const clickCounter = document.querySelectorAll('.coin-counter');
-
-for (let el of clickCounter) {
-    const counterIcon = document.createElement('img');
-    const counterTitle = document.createElement('div');
-
-    counterIcon.src = './assets/images/bullcoin_icon.png';
-    counterTitle.textContent = `${clickCount}`;
-
-    counterIcon.className = 'main-coin-icon';
-
-    el.append(counterIcon, counterTitle);
-}
-
-adjustFontSize(clickCounter[0]);
 
 const tasksNavigationItems = document.querySelectorAll('.navigation-item');
 const taskListContents = document.querySelectorAll('.tasks-list-content');
@@ -142,13 +23,111 @@ const boostersList = document.querySelector('.general-boosters-list');
 
 const refEmptyMessage = document.querySelector('.ref-empty');
 const refList = document.querySelector('.ref-list');
+const refUrl = document.querySelector('.ref-url');
 
 const menuItems = document.querySelectorAll('.menu-icon');
 const contents = document.querySelectorAll('.content');
 
-function updateProgress() {
-    progressBar.style.width = (currentProgress / maxProgress) * 100 + '%';
-    progressText.textContent = currentProgress + '/' + maxProgress;
+// ************************** Set these from endpoint **************************
+let tasks;
+let boosters;
+let referralsList;
+let boostsLoaded = false;
+
+let maxEnergy;
+let currentEnergy;
+let clickCount;
+// ************************** Set from endpoint **************************
+
+function initData(storageUser) {
+    clickCount = storageUser.points;
+
+    // currentEnergy = storageUser.current_energy;
+    currentEnergy = storageUser.max_energy;
+    maxEnergy = storageUser.max_energy;
+
+    for (let el of clickCounter) {
+        const counterIcon = document.createElement('img');
+        const counterTitle = document.createElement('div');
+
+        counterIcon.src = './assets/images/bullcoin_icon.png';
+        counterTitle.textContent = `${clickCount}`;
+
+        counterIcon.className = 'main-coin-icon';
+
+        el.append(counterIcon, counterTitle);
+    }
+
+    energyBarText.textContent = currentEnergy + '/' + maxEnergy;
+
+    adjustFontSize(clickCounter[0]);
+
+    tasks = storageUser.tasks;
+    boosters = storageUser.boosters;
+    referralsList = storageUser.referralsGiven;
+    refUrl.textContent = storageUser.ref_link;
+}
+
+function showLoader() {
+    contents.item(0).classList.remove('active');
+    loader.style.visibility = 'visible';
+    menuWrapper.style.visibility = 'hidden';
+}
+
+function hideLoader() {
+    loader.style.visibility = 'hidden';
+    menuWrapper.style.visibility = 'visible';
+    contents.item(0).classList.add('active');
+}
+
+function initTg() {
+    if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+        if (!Telegram.WebApp.isExpanded) {
+            Telegram.WebApp.expand();
+        }
+        getUserInfo().then(res => console.log(res));
+
+    } else {
+        console.log('Telegram WebApp is undefined, retrying…');
+        setTimeout(initTg, 100);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    async function fetchUserData() {
+        try {
+            showLoader()
+            initTg()
+            const response = await fetch(BACKEND_URL + '/user/550066310');
+            const data = await response.json();
+
+            localStorage.setItem('user', JSON.stringify(data));
+            // localStorage.setItem('currentEnergy', data.current_energy);
+            localStorage.setItem('currentEnergy', data.max_energy);
+            localStorage.setItem('maxEnergy', data.max_energy);
+            localStorage.setItem('score', 'data.score');
+
+            hideLoader()
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    }
+    let storageUser = JSON.parse(localStorage.getItem('user'));
+
+    if (!storageUser) {
+        fetchUserData().then(() => {
+            storageUser = JSON.parse(localStorage.getItem('user'));
+            initData(storageUser);
+        });
+    } else {
+        initData(storageUser);
+
+    }
+});
+
+function updateEnergy() {
+    energyBar.style.width = (currentEnergy / maxEnergy) * 100 + '%';
+    energyBarText.textContent = currentEnergy + '/' + maxEnergy;
 }
 
 function adjustFontSize(el) {
@@ -172,19 +151,20 @@ function adjustFontSize(el) {
     }
 }
 
-function decreaseProgress(event) {
+function decreaseEnergy(event) {
     event.stopPropagation();
 
     for (let touch of event.changedTouches) {
-        if (currentProgress > 0) {
-            currentProgress--;
+        if (currentEnergy > 0) {
+            currentEnergy--;
             clickCount++;
             showFloatingNumber(touch);
             localStorage.setItem('score', `${clickCount}`);
-            localStorage.setItem('progress', `${currentProgress}`);
+            localStorage.setItem('currentEnergy', `${currentEnergy}`);
+            localStorage.setItem('lastClickTime', `${new Date().toUTCString()}`);
         }
     }
-    updateProgress();
+    updateEnergy();
     for (let el of clickCounter) {
         el.replaceChildren();
 
@@ -201,11 +181,11 @@ function decreaseProgress(event) {
     adjustFontSize(clickCounter[0]);
 }
 
-function recoverProgress() {
-    if (currentProgress < maxProgress) {
-        currentProgress++;
-        localStorage.setItem('progress', currentProgress)
-        updateProgress();
+function recoverEnergy() {
+    if (currentEnergy < maxEnergy) {
+        currentEnergy++;
+        localStorage.setItem('currentEnergy', currentEnergy)
+        updateEnergy();
     }
 }
 
@@ -344,156 +324,46 @@ function handleMenuClick(event) {
         tasksNavigationItems[0].classList.add('active');
         taskListContents[0].classList.add('active');
 
-        // api call for tasks
-        if (!tasks) {
-            tasks = {
-                special: [
-                    {
-                        title: 'Subscribe to Telegram channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Subscribe to Twitter channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Subscribe to Instagram channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Subscribe to TikTok channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Subscribe to TikTok channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Subscribe to TikTok channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Subscribe to TikTok channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Subscribe to TikTok channel',
-                        url: 'https://telegram.telegram.org',
-                        bonus: 200000
-                    },
-                ],
-                referral: [
-                    {
-                        title: 'Invite 1 friend',
-                        invited: 1,
-                        goal: 1,
-                        bonus: 2500
-                    },
-                    {
-                        title: 'Invite 3 friends',
-                        invited: 1,
-                        goal: 3,
-                        bonus: 50000
-                    },
-                    {
-                        title: 'Invite 10 friends',
-                        invited: 1,
-                        goal: 10,
-                        bonus: 200000
-                    },
-                    {
-                        title: 'Invite 25 friends',
-                        invited: 1,
-                        goal: 25,
-                        bonus: 250000
-                    },
-                    {
-                        title: 'Invite 50 friends',
-                        invited: 1,
-                        goal: 50,
-                        bonus: 300000
-                    },
-                    {
-                        title: 'Invite 100 friends',
-                        invited: 1,
-                        goal: 100,
-                        bonus: 500000
-                    },
-                    {
-                        title: 'Invite 500 friends',
-                        invited: 1,
-                        goal: 500,
-                        bonus: 2000000
-                    },
-                    {
-                        title: 'Invite 1000 friends',
-                        invited: 1,
-                        goal: 1000,
-                        bonus: 2500000
-                    },
-                    {
-                        title: 'Invite 10000 friends',
-                        invited: 1,
-                        goal: 10000,
-                        bonus: 10000000
-                    },
-                    {
-                        title: 'Invite 100000 friends',
-                        invited: 1,
-                        goal: 100000,
-                        bonus: 100000000
-                    }
-                ]
-            };
+        for (let task of tasks.special) {
+            const taskListItem = document.createElement('div');
 
-            for (let task of tasks.special) {
-                const taskListItem = document.createElement('div');
+            const taskRightSide = document.createElement('div');
+            const taskIcon = document.createElement('img');
+            const taskTitle = document.createElement('div');
+            const taskBonus = document.createElement('div');
+            const taskRedirectIcon = document.createElement('div');
+            const taskInfoWrapper = document.createElement('div');
+            const counterIcon = document.createElement('img');
+            const bonusWrapper = document.createElement('div');
 
-                const taskRightSide = document.createElement('div');
-                const taskIcon = document.createElement('img');
-                const taskTitle = document.createElement('div');
-                const taskBonus = document.createElement('div');
-                const taskRedirectIcon = document.createElement('div');
-                const taskInfoWrapper = document.createElement('div');
-                const counterIcon = document.createElement('img');
-                const bonusWrapper = document.createElement('div');
+            counterIcon.className = 'main-coin-icon';
+            taskListItem.className = 'task-list-item';
+            taskInfoWrapper.className = 'task-info-wrapper';
+            taskIcon.className = 'task-list-icon';
+            taskTitle.className = 'task-list-title';
+            taskBonus.className = 'task-list-bonus';
+            taskRedirectIcon.className = 'task-list-redirect-icon';
 
-                counterIcon.className = 'main-coin-icon';
-                taskListItem.className = 'task-list-item';
-                taskInfoWrapper.className = 'task-info-wrapper';
-                taskIcon.className = 'task-list-icon';
-                taskTitle.className = 'task-list-title';
-                taskBonus.className = 'task-list-bonus';
-                taskRedirectIcon.className = 'task-list-redirect-icon';
+            taskIcon.src = './assets/images/task_icon.png';
+            taskTitle.textContent = task.title;
+            taskBonus.textContent = task.bonus;
+            taskRedirectIcon.textContent = '>';
 
-                taskIcon.src = './assets/images/task_icon.png';
-                taskTitle.textContent = task.title;
-                taskBonus.textContent = task.bonus;
-                taskRedirectIcon.textContent = '>';
+            taskRightSide.style.display = 'flex';
+            taskRightSide.style.alignItems = 'center';
 
-                taskRightSide.style.display = 'flex';
-                taskRightSide.style.alignItems = 'center';
+            bonusWrapper.style.display = 'flex';
+            bonusWrapper.style.alignItems = 'center';
+            bonusWrapper.style.gap = '3px';
 
-                bonusWrapper.style.display = 'flex';
-                bonusWrapper.style.alignItems = 'center';
-                bonusWrapper.style.gap = '3px';
+            counterIcon.src = './assets/images/bullcoin_icon.png';
+            counterIcon.style.width = '15px';
 
-                counterIcon.src = './assets/images/bullcoin_icon.png';
-                counterIcon.style.width = '15px';
-
-                bonusWrapper.append(counterIcon, taskBonus)
-                taskInfoWrapper.append(taskTitle, bonusWrapper);
-                taskRightSide.append(taskIcon, taskInfoWrapper);
-                taskListItem.append(taskRightSide, taskRedirectIcon);
-                taskListContents[0].appendChild(taskListItem);
-            }
+            bonusWrapper.append(counterIcon, taskBonus)
+            taskInfoWrapper.append(taskTitle, bonusWrapper);
+            taskRightSide.append(taskIcon, taskInfoWrapper);
+            taskListItem.append(taskRightSide, taskRedirectIcon);
+            taskListContents[0].appendChild(taskListItem);
         }
 
         adjustFontSize(tasksContentCounter);
@@ -524,16 +394,15 @@ function handleMenuClick(event) {
             boostsLoaded = true;
         }
     } else if (target === 'ref-content') {
-        // some api call(mock for now)
         const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
-        if (users.length !== 0) {
+        if (referralsList && referralsList.length !== 0) {
             refList.style.display = 'flex';
             refEmptyMessage.style.display = 'none';
-            refContentCounter.textContent = `${users.length} Referrals`
+            refContentCounter.textContent = `${referralsList.length} Referrals`
             adjustFontSize(refContentCounter);
 
-            for (let user of users) {
+            for (let user of referralsList) {
                 const refListItem = document.createElement('div');
                 const refListItemUsername = document.createElement('div');
                 const refListItemBonus = document.createElement('div');
@@ -551,14 +420,14 @@ function handleMenuClick(event) {
         } else {
             refList.style.display = 'none';
             refEmptyMessage.style.display = 'flex';
-            refContentCounter.textContent = `${users.length} Referrals`
+            refContentCounter.textContent = '0 Referrals';
         }
     }
 
     document.getElementById(target).classList.add('active');
 }
 
-setInterval(recoverProgress, 1000);
+setInterval(recoverEnergy, 1000);
 
 menuItems.forEach(item => {
     item.addEventListener('click', handleMenuClick);
@@ -568,4 +437,4 @@ tasksNavigationItems.forEach(item => {
     item.addEventListener('click', handleTasksClick);
 })
 
-updateProgress();
+updateEnergy();

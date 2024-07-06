@@ -12,6 +12,24 @@ html, body {
     background-color: #000000;
 }
 
+.loader {
+    position: absolute;
+    visibility: hidden;
+    border: 16px solid rgba(0,0,0, 0.3);
+    border-top: 16px solid #35ff78;
+    border-radius: 50%;
+    width: 33%;
+    height: 20%;
+    top: 35%;
+    left: 35%;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 .main-coin-icon {
     width: 50px;
 }
@@ -325,7 +343,7 @@ html, body {
     justify-content: center;
     gap: 10px;
     width: 100%;
-    padding: 10px 20px;
+    padding: 20px;
     border-radius: 10px;
 }
 
