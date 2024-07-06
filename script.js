@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader()
             initTg()
-            const response = await fetch(BACKEND_URL + '/user/550066310');
+            const response = await fetch(BACKEND_URL + `/user/${Telegram.WebApp.initData.user}`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
