@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(Telegram.WebApp.initData);
             const userData = JSON.parse(params.get('user'));
             telegramId = userData.id;
-            clickCount = 10
+            console.log(telegramId);
             const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
             const data = await response.json();
 
