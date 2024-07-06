@@ -101,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const userData = JSON.parse(params.get('user'));
             telegramId = userData.id;
             console.log(telegramId);
+            console.log(telegramId);
             const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
             const data = await response.json();
 
