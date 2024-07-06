@@ -98,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showLoader()
             initTg()
             const params = new URLSearchParams(Telegram.WebApp.initData);
-            telegramId = params.get('user');
+            const userData = JSON.parse(params.get('user'));
+            telegramId = userData.id;
             const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
             const data = await response.json();
 
