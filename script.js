@@ -85,7 +85,7 @@ function initTg() {
         if (!Telegram.WebApp.isExpanded) {
             Telegram.WebApp.expand();
         }
-        console.log(Telegram.WebApp.initData);
+        console.log(Telegram.WebApp.initData.user);
 
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
