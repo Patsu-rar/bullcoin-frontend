@@ -37,6 +37,7 @@ let boostsLoaded = false;
 let maxEnergy;
 let currentEnergy;
 let clickCount;
+let telegramId;
 // ************************** Set from endpoint **************************
 
 function initData(storageUser) {
@@ -85,8 +86,6 @@ function initTg() {
         if (!Telegram.WebApp.isExpanded) {
             Telegram.WebApp.expand();
         }
-        console.log(Telegram.WebApp.initData.user);
-
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
         setTimeout(initTg, 100);
@@ -98,7 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader()
             initTg()
-            const response = await fetch(BACKEND_URL + `/user/${Telegram.WebApp.initData.user}`);
+            const params = new URLSearchParams(Telegram.WebApp.initData);
+            telegramId = params.get('user');
+            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
