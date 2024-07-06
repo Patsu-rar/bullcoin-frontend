@@ -95,7 +95,7 @@ function initTg() {
 document.addEventListener('DOMContentLoaded', () => {
     async function fetchUserData() {
         try {
-            showLoader()
+            // showLoader()
             initTg()
             const params = new URLSearchParams(Telegram.WebApp.initData);
             const userData = JSON.parse(params.get('user'));
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('maxEnergy', data.max_energy);
             localStorage.setItem('score', 'data.score');
 
-            hideLoader()
+            // hideLoader()
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
