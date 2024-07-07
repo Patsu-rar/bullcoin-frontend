@@ -109,18 +109,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching user data:', error);
         }
     }
-    showLoader()
+
     let storageUser = JSON.parse(localStorage.getItem('user'));
 
     if (!storageUser) {
         fetchUserData().then(() => {
             storageUser = JSON.parse(localStorage.getItem('user'));
             initData(storageUser);
-            hideLoader()
         });
     } else {
+        showLoader();
         initData(storageUser);
-        hideLoader()
+        setTimeout(() => hideLoader(), 3000);
     }
 });
 
