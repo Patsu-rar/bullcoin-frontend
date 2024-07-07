@@ -158,6 +158,7 @@ function decreaseEnergy(event) {
             showFloatingNumber(touch);
 
             let storageUser = JSON.parse(localStorage.getItem('user'));
+            console.log(storageUser);
 
             storageUser.points = clickCount;
             storageUser.currentEnergy = currentEnergy;
