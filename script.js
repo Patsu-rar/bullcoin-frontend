@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'http://192.168.0.103:5000';
 
 const loader = document.querySelector('.loader');
 const menuWrapper = document.querySelector('.menu');
