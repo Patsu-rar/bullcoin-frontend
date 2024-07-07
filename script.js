@@ -1,5 +1,4 @@
 const BACKEND_URL = 'https://192.168.0.103:5000';
-console.log(BACKEND_URL);
 
 const loader = document.querySelector('.loader');
 const menuWrapper = document.querySelector('.menu');
