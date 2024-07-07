@@ -41,11 +41,9 @@ let clickCount;
 let telegramId;
 // ************************** Set from endpoint **************************
 
-function initData(storageUser) {
+function initData(storageUser, isInStorage = false) {
     clickCount = storageUser.points;
-
-    // currentEnergy = storageUser.current_energy;
-    currentEnergy = storageUser.max_energy;
+    currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
 
     for (let el of clickCounter) {
@@ -96,23 +94,17 @@ function initTg() {
 document.addEventListener('DOMContentLoaded', () => {
     async function fetchUserData() {
         try {
-            // showLoader()
+            showLoader()
             initTg()
             const params = new URLSearchParams(Telegram.WebApp.initData);
             const userData = JSON.parse(params.get('user'));
             telegramId = userData.id;
-            console.log(telegramId);
-            console.log(telegramId);
             const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
-            // localStorage.setItem('currentEnergy', data.current_energy);
-            localStorage.setItem('currentEnergy', data.max_energy);
-            localStorage.setItem('maxEnergy', data.max_energy);
-            localStorage.setItem('score', 'data.score');
 
-            // hideLoader()
+            hideLoader()
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
@@ -164,8 +156,13 @@ function decreaseEnergy(event) {
             currentEnergy--;
             clickCount++;
             showFloatingNumber(touch);
-            localStorage.setItem('score', `${clickCount}`);
-            localStorage.setItem('currentEnergy', `${currentEnergy}`);
+
+            let storageUser = JSON.parse(localStorage.getItem('user'));
+
+            storageUser.points = clickCount;
+            storageUser.currentEnergy = currentEnergy;
+
+            localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
             localStorage.setItem('lastClickTime', `${new Date().toUTCString()}`);
         }
     }
