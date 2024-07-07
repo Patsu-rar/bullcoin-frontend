@@ -161,7 +161,7 @@ function decreaseEnergy(event) {
             console.log(storageUser);
 
             storageUser.points = clickCount;
-            storageUser.currentEnergy = currentEnergy;
+            storageUser.current_energy = currentEnergy;
 
             localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
             localStorage.setItem('lastClickTime', `${new Date().toUTCString()}`);
