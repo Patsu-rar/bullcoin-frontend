@@ -231,7 +231,7 @@ html, body {
     flex-direction: column;
     gap: 4%;
     overflow-y: scroll;
-    height: 30vh;
+    height: 27vh;
 }
 
 .boost-list-item {
