@@ -95,10 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader()
             initTg()
-            const params = new URLSearchParams(Telegram.WebApp.initData);
-            const userData = JSON.parse(params.get('user'));
-            telegramId = userData.id;
-            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            // const params = new URLSearchParams(Telegram.WebApp.initData);
+            // const userData = JSON.parse(params.get('user'));
+            // telegramId = userData.id;
+            // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            const response = await fetch(BACKEND_URL + `/user/550066310`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
@@ -119,9 +120,30 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         showLoader();
         initData(storageUser);
-        setTimeout(() => hideLoader(), 3000);
+        setTimeout(() => hideLoader(), 2000);
     }
 });
+
+function showConfirmationPopup() {
+    Telegram.WebApp.showPopup(
+        {
+            title: "Confirm Action",
+            message: "Are you sure you want to proceed?",
+            buttons: [
+                { text: "Cancel", type: "close" },
+                { text: "Confirm", type: "ok" }
+            ]
+        },
+        (buttonId) => {
+            if (buttonId === 'ok') {
+                alert('Action confirmed!');
+                // Add your action here
+            } else {
+                alert('Action canceled.');
+            }
+        }
+    );
+}
 
 function updateEnergy() {
     energyBar.style.width = (currentEnergy / maxEnergy) * 100 + '%';
@@ -151,6 +173,7 @@ function adjustFontSize(el) {
 
 function decreaseEnergy(event) {
     event.stopPropagation();
+    event.preventDefault();
 
     for (let touch of event.changedTouches) {
         if (currentEnergy > 0) {
@@ -383,6 +406,9 @@ function handleMenuClick(event) {
                 const boostItemIcon = document.createElement('img');
                 const boostItemTitle = document.createElement('div');
                 const boostItemPrice = document.createElement('div');
+                const boostInfoWrapper = document.createElement('div');
+                const leftSideWrapper = document.createElement('div');
+                const upgradeBoosterIcon = document.createElement('div');
 
                 boostItem.className = 'boost-list-item';
                 boostItemIcon.className = 'boost-item-icon';
@@ -392,8 +418,24 @@ function handleMenuClick(event) {
                 boostItemIcon.src = `./assets/images/${boost.imgRef}`;
                 boostItemTitle.textContent = boost.title;
                 boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
+                upgradeBoosterIcon.textContent = '+';
 
-                boostItem.append(boostItemIcon, boostItemTitle, boostItemPrice);
+                boostInfoWrapper.style.display = 'flex';
+                boostInfoWrapper.style.flexDirection = 'column';
+                boostInfoWrapper.style.gap = '1%';
+
+                upgradeBoosterIcon.style.fontSize = '34px';
+                upgradeBoosterIcon.style.fontWeight = '700';
+
+                upgradeBoosterIcon.addEventListener('click', showConfirmationPopup);
+
+                leftSideWrapper.style.display = 'flex';
+                leftSideWrapper.style.alignItems = 'center';
+                leftSideWrapper.style.gap = '3%';
+
+                boostInfoWrapper.append(boostItemTitle, boostItemPrice)
+                leftSideWrapper.append(boostItemIcon, boostInfoWrapper)
+                boostItem.append(leftSideWrapper, upgradeBoosterIcon);
                 boostersList.appendChild(boostItem);
             }
             boostsLoaded = true;
