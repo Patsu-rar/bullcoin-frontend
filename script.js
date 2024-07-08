@@ -130,8 +130,8 @@ function showConfirmationPopup() {
             title: "Confirm Action",
             message: "Are you sure you want to proceed?",
             buttons: [
-                { text: "Cancel", type: "close" },
-                { text: "Confirm", type: "ok" }
+                { id: 'cancel', text: 'Cancel', type: 'close' },
+                { id: 'ok', text: 'Confirm', type: 'ok' }
             ]
         },
         (buttonId) => {
