@@ -96,11 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader()
             initTg()
-            // const params = new URLSearchParams(Telegram.WebApp.initData);
-            // const userData = JSON.parse(params.get('user'));
-            // telegramId = userData.id;
-            // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            const response = await fetch(BACKEND_URL + `/user/550066310`);
+            const params = new URLSearchParams(Telegram.WebApp.initData);
+            const userData = JSON.parse(params.get('user'));
+            telegramId = userData.id;
+            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            // const response = await fetch(BACKEND_URL + `/user/550066310`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
@@ -148,7 +148,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
         },
         (buttonId) => {
             if (buttonId === 'ok') {
-                const storageUser = JSON.parse(localStorage.getItem('user'));
+                let storageUser = JSON.parse(localStorage.getItem('user'));
                 if (boosterName === 'Tapping Guru') {
                     contents.forEach(content => {
                         content.classList.remove('active');
@@ -157,7 +157,8 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                     localStorage.setItem('isTappingGuruActive', 'true');
                     setTimeout(() => localStorage.setItem('isTappingGuruActive', 'false'), 20000);
                 } else if (boosterName === 'Full Tank') {
-                    currentEnergy = maxEnergy;
+                    storageUser.current_energy = maxEnergy;
+                    localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
                 } else if (boosterName === 'Tap Bot') {
 
                 } else {
