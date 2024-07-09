@@ -43,15 +43,23 @@
                 <div class="daily-boosters">
                     <div class="daily-boosters-title">Your daily boosters:</div>
                     <div class="daily-boosters-wrapper">
-                        <div class="daily-boosters-item">
+                        <div class="daily-boosters-item"
+                             onclick="showConfirmationPopup(
+                                 'Use tapping guru booster',
+                                 'Multiply your tap income by x5 for 20 seconds. Doesn\'t use energy while active.' ,
+                                 'Tapping Guru')">
                             <img src="assets/images/tapping_guru_icon.png" alt="full_tank_icon" style="width: 20%;">
                             <div style="display: flex; flex-direction: column">
                                 <div class="boosters-item-title">Tapping Guru</div>
                                 <div class="boosters-quantity">3/3</div>
                             </div>
                         </div>
-                        <div class="daily-boosters-item">
-                            <img src="assets/images/energy.png" alt="full_tank_icon" style="width: 15%;">
+                        <div class="daily-boosters-item"
+                             onclick="showConfirmationPopup(
+                                 'Use full tank booster',
+                                 'Fill your energy to the maximum.',
+                                 'Full Tank')">
+                            <img src="assets/images/energy.png" alt="full_tank_icon" style="width: 22%;">
                             <div style="display: flex; flex-direction: column">
                                 <div class="boosters-item-title">Full Tank</div>
                                 <div class="boosters-quantity">3/3</div>

@@ -1,4 +1,4 @@
-const BACKEND_URL = 'https://192.168.0.103:5000';
+const BACKEND_URL = 'http://127.0.0.1:5000';
 
 const loader = document.querySelector('.loader');
 const menuWrapper = document.querySelector('.menu');
@@ -60,6 +60,7 @@ function initData(storageUser, isInStorage = false) {
     energyBarText.textContent = currentEnergy + '/' + maxEnergy;
 
     adjustFontSize(clickCounter[0]);
+    localStorage.setItem('isTappingGuruActive', 'false');
 
     tasks = storageUser.tasks;
     boosters = storageUser.boosters;
@@ -124,25 +125,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function showConfirmationPopup() {
+async function upgradeBooster() {
+    try {
+        showLoader()
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/upgrade_booster`);
+        hideLoader()
+    } catch (error) {
+        console.error('Error upgrading a booster:', error);
+    }
+}
+
+function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, boosterPrice = 0) {
     Telegram.WebApp.showPopup(
         {
-            title: "Confirm Action",
-            message: "Are you sure you want to proceed?",
+            title,
+            message,
             buttons: [
-                { id: 'cancel', text: 'Cancel', type: 'close' },
-                { id: 'ok', text: 'Confirm', type: 'ok' }
+                {id: 'cancel', text: 'Cancel', type: 'close'},
+                {id: 'ok', text: 'Confirm', type: 'ok'}
             ]
         },
         (buttonId) => {
             if (buttonId === 'ok') {
-                alert('Action confirmed!');
-                // Add your action here
+                const storageUser = JSON.parse(localStorage.getItem('user'));
+                if (boosterName === 'Tapping Guru') {
+                    contents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    contents[0].classList.add('active');
+                    localStorage.setItem('isTappingGuruActive', 'true');
+                    setTimeout(() => localStorage.setItem('isTappingGuruActive', 'false'), 20000);
+                } else if (boosterName === 'Full Tank') {
+                    currentEnergy = maxEnergy;
+                } else if (boosterName === 'Tap Bot') {
+
+                } else {
+                    calculate_upgrade_price(boosterName, boosterLevel);
+                    upgradeBooster();
+                }
             } else {
-                alert('Action canceled.');
+                // pass
             }
         }
     );
+}
+
+function calculate_upgrade_price(boosterName, level) {
+    if (boosterName === 'Recharging Speed') {
+        if (level === 2) {
+            return 2000;
+        } else if (level === 3) {
+            return 10000;
+        } else if (level === 4) {
+            return 100000;
+        } else if (level === 5) {
+            return 250000;
+        } else {
+            return null;
+        }
+    } else {
+        if (2 <= level <= 8) {
+            return 200 * (2 ** (level - 2));
+        } else if (9 <= level <= 13) {
+            return 50000 * (2 ** (level - 9))
+        } else {
+            return 300000 + 100000 * (level - 13);
+        }
+    }
 }
 
 function updateEnergy() {
@@ -177,11 +227,14 @@ function decreaseEnergy(event) {
 
     for (let touch of event.changedTouches) {
         if (currentEnergy > 0) {
-            currentEnergy--;
-            clickCount++;
-            showFloatingNumber(touch);
-
             let storageUser = JSON.parse(localStorage.getItem('user'));
+            const isTappingGuruActive = JSON.parse(localStorage.getItem('isTappingGuruActive'));
+            const calculatedScore = 1 * storageUser.boosters[0].level;
+            if (!isTappingGuruActive) {
+                currentEnergy -= calculatedScore;
+            }
+            clickCount += calculatedScore;
+            showFloatingNumber(touch, calculatedScore);
 
             storageUser.points = clickCount;
             storageUser.current_energy = currentEnergy;
@@ -208,19 +261,21 @@ function decreaseEnergy(event) {
 }
 
 function recoverEnergy() {
-    if (currentEnergy < maxEnergy) {
-        currentEnergy++;
-        let storageUser = JSON.parse(localStorage.getItem('user'));
-        storageUser.current_energy = currentEnergy;
-        localStorage.setItem('user', JSON.stringify(storageUser));
-        updateEnergy();
+    const storageUser = JSON.parse(localStorage.getItem('user'));
+    const calculatedEnergy = 1 * storageUser.boosters[2].level;
+    currentEnergy += calculatedEnergy;
+    if (currentEnergy > maxEnergy) {
+      currentEnergy = maxEnergy;
     }
+    storageUser.current_energy = currentEnergy;
+    localStorage.setItem('user', JSON.stringify(storageUser));
+    updateEnergy();
 }
 
-function showFloatingNumber(touch) {
+function showFloatingNumber(touch, number) {
     const floatingNumber = document.createElement('div');
     floatingNumber.className = 'floating-number';
-    floatingNumber.textContent = '+1';
+    floatingNumber.textContent = `+${number}`;
     document.body.appendChild(floatingNumber);
 
     const rect = coin.getBoundingClientRect();
@@ -254,6 +309,8 @@ function copyToClipboard() {
 function handleTasksClick(event) {
     const target = event.target.getAttribute('data-target');
 
+    refTaskList.replaceChildren();
+
     tasksNavigationItems.forEach(item => {
         item.classList.remove('active');
     });
@@ -266,6 +323,9 @@ function handleTasksClick(event) {
     document.getElementById(target).classList.add('active');
 
     if (target === 'ref-tasks') {
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+
+
         for (let task of tasks.referral) {
             const taskListItem = document.createElement('div');
 
@@ -288,15 +348,11 @@ function handleTasksClick(event) {
 
             taskIcon.src = './assets/images/task_icon.png';
             taskTitle.textContent = task.title;
-            taskBonus.textContent = task.bonus;
+            taskBonus.textContent = task.reward;
             taskButton.textContent = 'Claim';
             taskButton.type = 'button';
 
-            if (task.invited < task.goal) {
-                taskButton.disabled = true;
-            } else {
-                taskButton.disabled = false;
-            }
+            taskButton.disabled = task.needed_invitations > storageUser.invited_count || task.completed;
 
             taskRightSide.style.display = 'flex';
             taskRightSide.style.alignItems = 'center';
@@ -374,7 +430,7 @@ function handleMenuClick(event) {
 
             taskIcon.src = './assets/images/task_icon.png';
             taskTitle.textContent = task.title;
-            taskBonus.textContent = task.bonus;
+            taskBonus.textContent = task.reward;
             taskRedirectIcon.textContent = '>';
 
             taskRightSide.style.display = 'flex';
@@ -417,7 +473,12 @@ function handleMenuClick(event) {
 
                 boostItemIcon.src = `./assets/images/${boost.imgRef}`;
                 boostItemTitle.textContent = boost.title;
-                boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
+                if (boost.level) {
+                    boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
+                } else {
+                    boostItemPrice.textContent = boost.price;
+                }
+
                 upgradeBoosterIcon.textContent = '+';
 
                 boostInfoWrapper.style.display = 'flex';
@@ -427,7 +488,13 @@ function handleMenuClick(event) {
                 upgradeBoosterIcon.style.fontSize = '34px';
                 upgradeBoosterIcon.style.fontWeight = '700';
 
-                upgradeBoosterIcon.addEventListener('click', showConfirmationPopup);
+                upgradeBoosterIcon.addEventListener('click', () =>
+                    showConfirmationPopup(
+                        'Upgrade booster',
+                        'Are you sure you want to upgrade this booster?',
+                        boost.title,
+                        boost.level,
+                        boost.price));
 
                 leftSideWrapper.style.display = 'flex';
                 leftSideWrapper.style.alignItems = 'center';
