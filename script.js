@@ -125,11 +125,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-async function upgradeBooster() {
+async function upgradeBooster(boosterName) {
     try {
         showLoader()
         const storageUser = JSON.parse(localStorage.getItem('user'));
-        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/upgrade_booster`);
+        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/upgrade_booster`, {
+            method: 'POST',
+            body: JSON.stringify({
+                booster_name: boosterName
+            })
+        });
         hideLoader()
     } catch (error) {
         console.error('Error upgrading a booster:', error);
@@ -163,7 +168,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
 
                 } else {
                     calculate_upgrade_price(boosterName, boosterLevel);
-                    upgradeBooster();
+                    upgradeBooster(boosterName);
                 }
             } else {
                 // pass
