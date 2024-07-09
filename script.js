@@ -133,7 +133,10 @@ async function upgradeBooster(boosterName) {
             method: 'POST',
             body: JSON.stringify({
                 booster_name: boosterName
-            })
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
         });
         hideLoader()
     } catch (error) {
