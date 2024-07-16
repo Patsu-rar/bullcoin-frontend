@@ -20,6 +20,8 @@ const specialTaskList = document.getElementById('special-tasks');
 const refTaskList = document.getElementById('ref-tasks');
 
 const boostersList = document.querySelector('.general-boosters-list');
+const tapGuruCounter = document.getElementById('tapping-guru-counter');
+const fullTankCounter = document.getElementById('full-tank-counter');
 
 const refEmptyMessage = document.querySelector('.ref-empty');
 const refList = document.querySelector('.ref-list');
@@ -40,7 +42,7 @@ let clickCount;
 let telegramId;
 // ************************** Set from endpoint **************************
 
-function initData(storageUser, isInStorage = false) {
+function initData(storageUser) {
     clickCount = storageUser.points;
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
@@ -58,6 +60,8 @@ function initData(storageUser, isInStorage = false) {
     }
 
     energyBarText.textContent = currentEnergy + '/' + maxEnergy;
+    fullTankCounter.textContent = storageUser.daily_boosters_usage['Full Tank'] + '/3';
+    tapGuruCounter.textContent = storageUser.daily_boosters_usage['Tapping Guru'] + '/3';
 
     adjustFontSize(clickCounter[0]);
     localStorage.setItem('isTappingGuruActive', 'false');
@@ -136,7 +140,8 @@ async function upgradeBooster(boosterName) {
         const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/upgrade_booster`, {
             method: 'POST',
             body: JSON.stringify({
-                booster_name: boosterName
+                booster_name: boosterName,
+                current_score: storageUser.points
             }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
@@ -197,7 +202,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                     hideLoader();
                     contents.item(0).classList.add('active');
                 } else if (boosterName === 'Full Tank') {
-                    storageUser.current_energy = maxEnergy;
+                    storageUser.current_energy = storageUser.max_energy;
                     storageUser.daily_boosters_usage["Full Tank"] -= 1;
                     useDailyBooster(boosterName);
                     localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
