@@ -175,6 +175,18 @@ async function useDailyBooster(boosterName) {
 function renderBoostersList(boosters) {
     boostersList.innerHTML = '';
 
+    for (let el of clickCounter) {
+        const counterIcon = document.createElement('img');
+        const counterTitle = document.createElement('div');
+
+        counterIcon.src = './assets/images/bullcoin_icon.png';
+        counterTitle.textContent = `${clickCount}`;
+
+        counterIcon.className = 'main-coin-icon';
+
+        el.append(counterIcon, counterTitle);
+    }
+
     for (let boost of boosters) {
         const boostItem = document.createElement('div');
         const boostItemIcon = document.createElement('img');
@@ -286,6 +298,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                             booster.level += 1;
                             booster.price = calculate_upgrade_price(boosterName, boosterLevel + 2);
                             storageUser.points -= calculatedPrice;
+                            clickCount = storageUser.points;
                             localStorage.setItem('user', JSON.stringify(storageUser));
                             renderBoostersList(storageUser.boosters);
                             hideLoader();
