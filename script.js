@@ -173,7 +173,7 @@ async function useDailyBooster(boosterName) {
 }
 
 function renderBoostersList(boosters) {
-    boostersList.innerHTML = ''; // Clear existing list
+    boostersList.innerHTML = '';
 
     for (let boost of boosters) {
         const boostItem = document.createElement('div');
@@ -250,14 +250,15 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                         setTimeout(() => localStorage.setItem('isTappingGuruActive', 'false'), 20000);
                         localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
                         tapGuruCounter.textContent = storageUser.daily_boosters_usage['Tapping Guru'] + '/3';
+                        hideLoader();
+                        contents.item(0).classList.add('active');
                     } else {
                         Telegram.WebApp.showAlert('You have reached the maximum number of uses for today.');
+                        hideLoader();
+                        contents.item(2).classList.add('active');
                     }
-
-                    hideLoader();
-                    contents.item(0).classList.add('active');
                 } else if (boosterName === 'Full Tank') {
-                    if (storageUser.daily_boosters_usage["Tapping Guru"] !== 0) {
+                    if (storageUser.daily_boosters_usage["Full Tank"] !== 0) {
                         storageUser.current_energy = storageUser.max_energy;
                         storageUser.daily_boosters_usage["Full Tank"] -= 1;
                         useDailyBooster(boosterName);
@@ -265,12 +266,13 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                         fullTankCounter.textContent = storageUser.daily_boosters_usage['Full Tank'] + '/3';
                         currentEnergy = maxEnergy;
                         updateEnergy();
+                        hideLoader();
+                        contents.item(0).classList.add('active');
                     } else {
                         Telegram.WebApp.showAlert('You have reached the maximum number of uses for today.');
+                        hideLoader();
+                        contents.item(2).classList.add('active');
                     }
-
-                    hideLoader();
-                    contents.item(0).classList.add('active');
                 } else if (boosterName === 'Tap Bot') {
                     hideLoader();
                     contents.item(2).classList.add('active');
@@ -362,9 +364,11 @@ function decreaseEnergy(event) {
         if (currentEnergy > 0) {
             let storageUser = JSON.parse(localStorage.getItem('user'));
             const isTappingGuruActive = JSON.parse(localStorage.getItem('isTappingGuruActive'));
-            const calculatedScore = storageUser.boosters[0].level;
+            let calculatedScore = storageUser.boosters[0].level;
             if (!isTappingGuruActive) {
                 currentEnergy -= calculatedScore;
+            } else {
+                calculatedScore *= 5;
             }
             clickCount += calculatedScore;
             showFloatingNumber(touch, calculatedScore);
