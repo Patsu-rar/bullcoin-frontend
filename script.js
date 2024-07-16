@@ -46,14 +46,13 @@ function initData(storageUser) {
     clickCount = storageUser.points;
 
     const loginTime = localStorage.getItem('loginTime');
-    const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
 
     if (!loginTime) {
-        localStorage.setItem('loginTime', initDataUnsafe.auth_date)
+        localStorage.setItem('loginTime', Date.now());
     } else {
-        currentEnergy += initDataUnsafe.auth_date - (+loginTime);
+        currentEnergy += Math.floor((Date.now() - test) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy > maxEnergy) {
             currentEnergy = maxEnergy;
         }
@@ -133,9 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let storageUser = JSON.parse(localStorage.getItem('user'));
 
     if (!storageUser) {
+        showLoader();
         fetchUserData().then(() => {
             storageUser = JSON.parse(localStorage.getItem('user'));
             initData(storageUser);
+            hideLoader();
+            contents.item(0).classList.add('active');
         });
     } else {
         showLoader();
