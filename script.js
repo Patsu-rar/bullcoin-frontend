@@ -101,11 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader();
             initTg();
-            // const params = new URLSearchParams(Telegram.WebApp.initData);
-            // const userData = JSON.parse(params.get('user'));
-            // telegramId = userData.id;
-            // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            const response = await fetch(BACKEND_URL + `/user/550066310`);
+            const params = new URLSearchParams(Telegram.WebApp.initData);
+            const userData = JSON.parse(params.get('user'));
+            telegramId = userData.id;
+            console.log(userData);
+            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            // const response = await fetch(BACKEND_URL + `/user/550066310`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
@@ -176,6 +177,8 @@ function renderBoostersList(boosters) {
     boostersList.innerHTML = '';
 
     for (let el of clickCounter) {
+        el.replaceChildren();
+
         const counterIcon = document.createElement('img');
         const counterTitle = document.createElement('div');
 
