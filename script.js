@@ -216,9 +216,11 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                     if (storageUser.points > booster.price) {
                         const calculatedPrice = calculate_upgrade_price(boosterName, boosterLevel + 1);
 
-                        storageUser.blevel += 1;
-                        storageUser.level += 1;
-                        storageUser.points -= calculatedPrice
+                        booster.level += 1;
+                        booster.price = calculate_upgrade_price(boosterName, boosterLevel + 2);
+                        storageUser.points -= calculatedPrice;
+                        localStorage.setItem('user', JSON.stringify(storageUser));
+
                         upgradeBooster(boosterName);
                     } else {
 
