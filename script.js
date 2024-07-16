@@ -119,6 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let storageUser = JSON.parse(localStorage.getItem('user'));
+
+    const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
+
+    console.log('general: ', initDataUnsafe);
+    console.log('json: ', JSON.parse(initDataUnsafe));
+    const authDate = initDataUnsafe.auth_date;
+
+    console.log(authDate);
+
     if (!storageUser) {
         fetchUserData().then(() => {
             storageUser = JSON.parse(localStorage.getItem('user'));
@@ -198,14 +207,24 @@ function renderBoostersList(boosters) {
         const boostInfoWrapper = document.createElement('div');
         const leftSideWrapper = document.createElement('div');
         const upgradeBoosterIcon = document.createElement('div');
+        const boostPriceWrapper = document.createElement('div');
+        const counterIcon = document.createElement('img');
 
         boostItem.className = 'boost-list-item';
         boostItemIcon.className = 'boost-item-icon';
         boostItemTitle.className = 'boost-item-title';
         boostItemPrice.className = 'boost-item-price';
+        counterIcon.className = 'main-coin-icon';
 
         boostItemIcon.src = `./assets/images/${boost.imgRef}`;
         boostItemTitle.textContent = boost.title;
+
+        boostPriceWrapper.style.display = 'flex';
+        boostPriceWrapper.style.alignItems = 'center';
+        boostPriceWrapper.style.gap = '3px';
+        counterIcon.src = './assets/images/bullcoin_icon.png';
+        counterIcon.style.width = '15px';
+
         if (boost.level) {
             boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
         } else {
@@ -233,7 +252,8 @@ function renderBoostersList(boosters) {
         leftSideWrapper.style.alignItems = 'center';
         leftSideWrapper.style.gap = '3%';
 
-        boostInfoWrapper.append(boostItemTitle, boostItemPrice);
+        boostPriceWrapper.append(counterIcon, boostItemPrice)
+        boostInfoWrapper.append(boostItemTitle, boostPriceWrapper);
         leftSideWrapper.append(boostItemIcon, boostInfoWrapper);
         boostItem.append(leftSideWrapper, upgradeBoosterIcon);
         boostersList.appendChild(boostItem);
@@ -295,6 +315,13 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                     const booster = storageUser.boosters.find(booster => booster.title === boosterName);
                     if (storageUser.points > booster.price) {
                         showLoader();
+
+                        if (boosterName === 'Energy Limit') {
+                            storageUser.max_energy += 500;
+                            maxEnergy = storageUser.max_energy;
+                            localStorage.setItem('user', JSON.stringify(storageUser));
+                        }
+
                         upgradeBooster(boosterName).then(() => {
                             const calculatedPrice = calculate_upgrade_price(boosterName, boosterLevel + 1);
 
@@ -687,14 +714,24 @@ function handleMenuClick(event) {
                 const boostInfoWrapper = document.createElement('div');
                 const leftSideWrapper = document.createElement('div');
                 const upgradeBoosterIcon = document.createElement('div');
+                const boostPriceWrapper = document.createElement('div');
+                const counterIcon = document.createElement('img');
 
                 boostItem.className = 'boost-list-item';
                 boostItemIcon.className = 'boost-item-icon';
                 boostItemTitle.className = 'boost-item-title';
                 boostItemPrice.className = 'boost-item-price';
+                counterIcon.className = 'main-coin-icon';
 
                 boostItemIcon.src = `./assets/images/${boost.imgRef}`;
                 boostItemTitle.textContent = boost.title;
+
+                boostPriceWrapper.style.display = 'flex';
+                boostPriceWrapper.style.alignItems = 'center';
+                boostPriceWrapper.style.gap = '3px';
+                counterIcon.src = './assets/images/bullcoin_icon.png';
+                counterIcon.style.width = '15px';
+
                 if (boost.level) {
                     boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
                 } else {
@@ -722,7 +759,8 @@ function handleMenuClick(event) {
                 leftSideWrapper.style.alignItems = 'center';
                 leftSideWrapper.style.gap = '3%';
 
-                boostInfoWrapper.append(boostItemTitle, boostItemPrice)
+                boostPriceWrapper.append(counterIcon, boostItemPrice)
+                boostInfoWrapper.append(boostItemTitle, boostPriceWrapper);
                 leftSideWrapper.append(boostItemIcon, boostInfoWrapper)
                 boostItem.append(leftSideWrapper, upgradeBoosterIcon);
                 boostersList.appendChild(boostItem);
