@@ -69,7 +69,9 @@ function initData(storageUser, isInStorage = false) {
 }
 
 function showLoader() {
-    contents.item(0).classList.remove('active');
+    contents.forEach(content => {
+        content.classList.remove('active');
+    });
     loader.style.visibility = 'visible';
     menuWrapper.style.visibility = 'hidden';
 }
@@ -77,7 +79,6 @@ function showLoader() {
 function hideLoader() {
     loader.style.visibility = 'hidden';
     menuWrapper.style.visibility = 'visible';
-    contents.item(0).classList.add('active');
 }
 
 function initTg() {
@@ -94,25 +95,25 @@ function initTg() {
 document.addEventListener('DOMContentLoaded', () => {
     async function fetchUserData() {
         try {
-            showLoader()
-            initTg()
-            const params = new URLSearchParams(Telegram.WebApp.initData);
-            const userData = JSON.parse(params.get('user'));
-            telegramId = userData.id;
-            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            // const response = await fetch(BACKEND_URL + `/user/550066310`);
+            showLoader();
+            initTg();
+            // const params = new URLSearchParams(Telegram.WebApp.initData);
+            // const userData = JSON.parse(params.get('user'));
+            // telegramId = userData.id;
+            // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            const response = await fetch(BACKEND_URL + `/user/550066310`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
 
-            hideLoader()
+            hideLoader();
+            contents.item(0).classList.add('active');
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
     }
 
     let storageUser = JSON.parse(localStorage.getItem('user'));
-
     if (!storageUser) {
         fetchUserData().then(() => {
             storageUser = JSON.parse(localStorage.getItem('user'));
@@ -121,13 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         showLoader();
         initData(storageUser);
-        setTimeout(() => hideLoader(), 2000);
+        setTimeout(() => {
+            hideLoader();
+            contents.item(0).classList.add('active');
+        }, 2000);
     }
 });
 
 async function upgradeBooster(boosterName) {
     try {
-        showLoader()
+        showLoader();
         const storageUser = JSON.parse(localStorage.getItem('user'));
         const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/upgrade_booster`, {
             method: 'POST',
@@ -138,9 +142,32 @@ async function upgradeBooster(boosterName) {
                 "Content-type": "application/json; charset=UTF-8"
             }
         });
-        hideLoader()
+        hideLoader();
+
+        contents.item(2).classList.add('active');
     } catch (error) {
         console.error('Error upgrading a booster:', error);
+    }
+}
+
+async function useDailyBooster(boosterName) {
+    try {
+        showLoader();
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/use_booster`, {
+            method: 'POST',
+            body: JSON.stringify({
+                booster_name: boosterName,
+                current_score: storageUser.points
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+        hideLoader();
+        contents.item(0).classList.add('active');
+    } catch (error) {
+        console.error('Error using a daily booster:', error);
     }
 }
 
@@ -157,21 +184,43 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
         (buttonId) => {
             if (buttonId === 'ok') {
                 let storageUser = JSON.parse(localStorage.getItem('user'));
+                contents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                showLoader();
                 if (boosterName === 'Tapping Guru') {
-                    contents.forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    contents[0].classList.add('active');
+                    storageUser.daily_boosters_usage["Tapping Guru"] -= 1;
                     localStorage.setItem('isTappingGuruActive', 'true');
+                    useDailyBooster(boosterName);
                     setTimeout(() => localStorage.setItem('isTappingGuruActive', 'false'), 20000);
+                    localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                    hideLoader();
+                    contents.item(0).classList.add('active');
                 } else if (boosterName === 'Full Tank') {
                     storageUser.current_energy = maxEnergy;
+                    storageUser.daily_boosters_usage["Full Tank"] -= 1;
+                    useDailyBooster(boosterName);
                     localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                    hideLoader();
+                    contents.item(0).classList.add('active');
                 } else if (boosterName === 'Tap Bot') {
-
+                    hideLoader();
+                    contents.item(2).classList.add('active');
                 } else {
-                    calculate_upgrade_price(boosterName, boosterLevel);
-                    upgradeBooster(boosterName);
+                    const booster = storageUser.boosters.find(booster => booster.title === boosterName);
+                    if (storageUser.points > booster.price) {
+                        const calculatedPrice = calculate_upgrade_price(boosterName, boosterLevel + 1);
+
+                        storageUser.blevel += 1;
+                        storageUser.level += 1;
+                        storageUser.points -= calculatedPrice
+                        upgradeBooster(boosterName);
+                    } else {
+
+                    }
+
+                    hideLoader();
+                    contents.item(2).classList.add('active');
                 }
             } else {
                 // pass
@@ -238,7 +287,7 @@ function decreaseEnergy(event) {
         if (currentEnergy > 0) {
             let storageUser = JSON.parse(localStorage.getItem('user'));
             const isTappingGuruActive = JSON.parse(localStorage.getItem('isTappingGuruActive'));
-            const calculatedScore = 1 * storageUser.boosters[0].level;
+            const calculatedScore = storageUser.boosters[0].level;
             if (!isTappingGuruActive) {
                 currentEnergy -= calculatedScore;
             }
@@ -271,7 +320,7 @@ function decreaseEnergy(event) {
 
 function recoverEnergy() {
     const storageUser = JSON.parse(localStorage.getItem('user'));
-    const calculatedEnergy = 1 * storageUser.boosters[2].level;
+    const calculatedEnergy = storageUser.boosters[2].level;
     currentEnergy += calculatedEnergy;
     if (currentEnergy > maxEnergy) {
       currentEnergy = maxEnergy;
@@ -315,6 +364,11 @@ function copyToClipboard() {
     });
 }
 
+function redirectToChannel(channelUsername) {
+    const channelLink = `https://t.me/${channelUsername}`;
+    Telegram.WebApp.openTelegramLink(channelLink);
+}
+
 function handleTasksClick(event) {
     const target = event.target.getAttribute('data-target');
 
@@ -333,7 +387,6 @@ function handleTasksClick(event) {
 
     if (target === 'ref-tasks') {
         const storageUser = JSON.parse(localStorage.getItem('user'));
-
 
         for (let task of tasks.referral) {
             const taskListItem = document.createElement('div');
@@ -363,6 +416,10 @@ function handleTasksClick(event) {
 
             taskButton.disabled = task.needed_invitations > storageUser.invited_count || task.completed;
 
+            taskButton.addEventListener('click', () => {
+
+            });
+
             taskRightSide.style.display = 'flex';
             taskRightSide.style.alignItems = 'center';
 
@@ -382,8 +439,45 @@ function handleTasksClick(event) {
     }
 }
 
+async function getReferralsList() {
+    try {
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/referrals/${storageUser.telegram_id}`);
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+async function getUserTasksList() {
+    try {
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/tasks/${storageUser.telegram_id}`);
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
 function handleMenuClick(event) {
     const target = event.target.getAttribute('data-target');
+    const storageUser = JSON.parse(localStorage.getItem('user'));
+
+    clickCounter.forEach( (el, i) =>{
+        el.replaceChildren();
+
+        const counterTitle = document.createElement('div');
+        const counterIcon = document.createElement('img');
+
+        counterIcon.src = './assets/images/bullcoin_icon.png';
+        counterTitle.textContent = `${storageUser.points}`;
+
+        counterIcon.className = 'main-coin-icon';
+
+        el.append(counterIcon, counterTitle);
+        adjustFontSize(clickCounter[i]);
+    });
+
 
     contents.forEach(content => {
         content.classList.remove('active');
@@ -413,53 +507,77 @@ function handleMenuClick(event) {
         adjustFontSize(homeContentCounter);
     } else if (target === 'tasks-content') {
         const tasksContentCounter = document.querySelectorAll('.coin-counter')[1];
+        specialTaskList.replaceChildren();
+        showLoader();
+        getUserTasksList().then(res => {
+            tasks = res;
 
-        tasksNavigationItems[0].classList.add('active');
-        taskListContents[0].classList.add('active');
+            tasksNavigationItems[0].classList.add('active');
+            taskListContents[0].classList.add('active');
 
-        for (let task of tasks.special) {
-            const taskListItem = document.createElement('div');
+            for (let task of tasks.special) {
+                const taskListItem = document.createElement('div');
 
-            const taskRightSide = document.createElement('div');
-            const taskIcon = document.createElement('img');
-            const taskTitle = document.createElement('div');
-            const taskBonus = document.createElement('div');
-            const taskRedirectIcon = document.createElement('div');
-            const taskInfoWrapper = document.createElement('div');
-            const counterIcon = document.createElement('img');
-            const bonusWrapper = document.createElement('div');
+                const taskRightSide = document.createElement('div');
+                const taskIcon = document.createElement('img');
+                const taskTitle = document.createElement('div');
+                const taskBonus = document.createElement('div');
+                const taskRedirectIcon = document.createElement('div');
+                const taskInfoWrapper = document.createElement('div');
+                const counterIcon = document.createElement('img');
+                const bonusWrapper = document.createElement('div');
+                const taskButton = document.createElement('button');
 
-            counterIcon.className = 'main-coin-icon';
-            taskListItem.className = 'task-list-item';
-            taskInfoWrapper.className = 'task-info-wrapper';
-            taskIcon.className = 'task-list-icon';
-            taskTitle.className = 'task-list-title';
-            taskBonus.className = 'task-list-bonus';
-            taskRedirectIcon.className = 'task-list-redirect-icon';
+                counterIcon.className = 'main-coin-icon';
+                taskListItem.className = 'task-list-item';
+                taskInfoWrapper.className = 'task-info-wrapper';
+                taskIcon.className = 'task-list-icon';
+                taskTitle.className = 'task-list-title';
+                taskBonus.className = 'task-list-bonus';
 
-            taskIcon.src = './assets/images/task_icon.png';
-            taskTitle.textContent = task.title;
-            taskBonus.textContent = task.reward;
-            taskRedirectIcon.textContent = '>';
+                if (task.subscribed) {
+                    taskButton.className = 'ref-btn';
+                    taskButton.textContent = 'Claim';
+                    taskButton.type = 'button';
+                    taskButton.addEventListener('click', () => {
+                        console.log(1)});
+                } else {
+                    taskButton.className = 'task-list-redirect-icon';
+                    taskButton.textContent = '>';
+                    taskButton.type = 'button';
+                    taskButton.addEventListener('click', () => {
+                        Telegram.WebApp.openTelegramLink(task.task_url);
+                    });
+                }
 
-            taskRightSide.style.display = 'flex';
-            taskRightSide.style.alignItems = 'center';
+                taskIcon.src = './assets/images/task_icon.png';
+                taskTitle.textContent = task.title;
+                taskBonus.textContent = task.reward;
 
-            bonusWrapper.style.display = 'flex';
-            bonusWrapper.style.alignItems = 'center';
-            bonusWrapper.style.gap = '3px';
+                taskRightSide.style.display = 'flex';
+                taskRightSide.style.alignItems = 'center';
 
-            counterIcon.src = './assets/images/bullcoin_icon.png';
-            counterIcon.style.width = '15px';
+                bonusWrapper.style.display = 'flex';
+                bonusWrapper.style.alignItems = 'center';
+                bonusWrapper.style.gap = '3px';
 
-            bonusWrapper.append(counterIcon, taskBonus)
-            taskInfoWrapper.append(taskTitle, bonusWrapper);
-            taskRightSide.append(taskIcon, taskInfoWrapper);
-            taskListItem.append(taskRightSide, taskRedirectIcon);
-            taskListContents[0].appendChild(taskListItem);
-        }
+                counterIcon.src = './assets/images/bullcoin_icon.png';
+                counterIcon.style.width = '15px';
 
-        adjustFontSize(tasksContentCounter);
+                bonusWrapper.append(counterIcon, taskBonus)
+                taskInfoWrapper.append(taskTitle, bonusWrapper);
+                taskRightSide.append(taskIcon, taskInfoWrapper);
+                taskListItem.append(taskRightSide, taskButton);
+                taskListContents[0].appendChild(taskListItem);
+            }
+
+            adjustFontSize(tasksContentCounter);
+
+            hideLoader();
+            contents.item(1).classList.add('active');
+        });
+
+
     } else if (target === 'boosts-content') {
         const boostsContentCounter = document.querySelectorAll('.coin-counter')[2];
 
@@ -519,32 +637,54 @@ function handleMenuClick(event) {
     } else if (target === 'ref-content') {
         const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
-        if (referralsList && referralsList.length !== 0) {
-            refList.style.display = 'flex';
-            refEmptyMessage.style.display = 'none';
-            refContentCounter.textContent = `${referralsList.length} Referrals`
-            adjustFontSize(refContentCounter);
+        getReferralsList().then((res) => {
+            showLoader();
+            referralsList = res;
+            const storageUser = JSON.parse(localStorage.getItem('user'));
 
-            for (let user of referralsList) {
-                const refListItem = document.createElement('div');
-                const refListItemUsername = document.createElement('div');
-                const refListItemBonus = document.createElement('div');
+            if (referralsList && referralsList.length !== 0) {
+                if (referralsList.length > storageUser.referrals_given.length) {
+                    storageUser.points += 5000 * (referralsList.length - storageUser.referrals_given.length);
+                    clickCount = storageUser.points;
+                    storageUser.invited_count = referralsList.length;
+                    storageUser.referrals_given.push({
+                        'points_awarded': 5000,
+                        'referee_id': res.referee_id,
+                        'referral_id': res.referral_id
+                    });
 
-                refListItem.className = 'ref-list-item';
-                refListItemUsername.className = 'ref-list-item-username';
-                refListItemBonus.className = 'ref-list-item-bonus';
+                    localStorage.setItem('user', JSON.stringify(storageUser));
+                }
 
-                refListItemBonus.textContent = '+5000';
-                refListItemUsername.textContent = `${user.username}`;
+                refList.style.display = 'flex';
+                refEmptyMessage.style.display = 'none';
+                refContentCounter.textContent = `${referralsList.length} Referrals`
+                adjustFontSize(refContentCounter);
 
-                refListItem.append(refListItemUsername, refListItemBonus);
-                refList.appendChild(refListItem);
+                for (let user of referralsList) {
+                    const refListItem = document.createElement('div');
+                    const refListItemUsername = document.createElement('div');
+                    const refListItemBonus = document.createElement('div');
+
+                    refListItem.className = 'ref-list-item';
+                    refListItemUsername.className = 'ref-list-item-username';
+                    refListItemBonus.className = 'ref-list-item-bonus';
+
+                    refListItemBonus.textContent = `+${user.points_awarded}`;
+                    refListItemUsername.textContent = `${user.username}`;
+
+                    refListItem.append(refListItemUsername, refListItemBonus);
+                    refList.appendChild(refListItem);
+                }
+            } else {
+                refList.style.display = 'none';
+                refEmptyMessage.style.display = 'flex';
+                refContentCounter.textContent = '0 Referrals';
             }
-        } else {
-            refList.style.display = 'none';
-            refEmptyMessage.style.display = 'flex';
-            refContentCounter.textContent = '0 Referrals';
-        }
+
+            hideLoader();
+            contents.item(3).classList.add('active');
+        });
     }
 
     document.getElementById(target).classList.add('active');
