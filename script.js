@@ -44,8 +44,20 @@ let telegramId;
 
 function initData(storageUser) {
     clickCount = storageUser.points;
+
+    const loginTime = localStorage.getItem('loginTime');
+    const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
+
+    if (!loginTime) {
+        localStorage.setItem('loginTime', initDataUnsafe.auth_date)
+    } else {
+        currentEnergy += initDataUnsafe.auth_date - (+loginTime);
+        if (currentEnergy > maxEnergy) {
+            currentEnergy = maxEnergy;
+        }
+    }
 
     for (let el of clickCounter) {
         const counterIcon = document.createElement('img');
@@ -119,14 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let storageUser = JSON.parse(localStorage.getItem('user'));
-
-    const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
-
-    console.log('general: ', initDataUnsafe);
-    console.log('json: ', JSON.parse(initDataUnsafe));
-    const authDate = initDataUnsafe.auth_date;
-
-    console.log(authDate);
 
     if (!storageUser) {
         fetchUserData().then(() => {
