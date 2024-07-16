@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function upgradeBooster(boosterName) {
     try {
-        showLoader();
         const storageUser = JSON.parse(localStorage.getItem('user'));
         const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/upgrade_booster`, {
             method: 'POST',
@@ -147,9 +146,6 @@ async function upgradeBooster(boosterName) {
                 "Content-type": "application/json; charset=UTF-8"
             }
         });
-        hideLoader();
-
-        contents.item(2).classList.add('active');
     } catch (error) {
         console.error('Error upgrading a booster:', error);
     }
@@ -176,6 +172,59 @@ async function useDailyBooster(boosterName) {
     }
 }
 
+function renderBoostersList(boosters) {
+    boostersList.innerHTML = ''; // Clear existing list
+
+    for (let boost of boosters) {
+        const boostItem = document.createElement('div');
+        const boostItemIcon = document.createElement('img');
+        const boostItemTitle = document.createElement('div');
+        const boostItemPrice = document.createElement('div');
+        const boostInfoWrapper = document.createElement('div');
+        const leftSideWrapper = document.createElement('div');
+        const upgradeBoosterIcon = document.createElement('div');
+
+        boostItem.className = 'boost-list-item';
+        boostItemIcon.className = 'boost-item-icon';
+        boostItemTitle.className = 'boost-item-title';
+        boostItemPrice.className = 'boost-item-price';
+
+        boostItemIcon.src = `./assets/images/${boost.imgRef}`;
+        boostItemTitle.textContent = boost.title;
+        if (boost.level) {
+            boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
+        } else {
+            boostItemPrice.textContent = boost.price;
+        }
+
+        upgradeBoosterIcon.textContent = '+';
+
+        boostInfoWrapper.style.display = 'flex';
+        boostInfoWrapper.style.flexDirection = 'column';
+        boostInfoWrapper.style.gap = '1%';
+
+        upgradeBoosterIcon.style.fontSize = '34px';
+        upgradeBoosterIcon.style.fontWeight = '700';
+
+        upgradeBoosterIcon.addEventListener('click', () =>
+            showConfirmationPopup(
+                'Upgrade booster',
+                'Are you sure you want to upgrade this booster?',
+                boost.title,
+                boost.level,
+                boost.price));
+
+        leftSideWrapper.style.display = 'flex';
+        leftSideWrapper.style.alignItems = 'center';
+        leftSideWrapper.style.gap = '3%';
+
+        boostInfoWrapper.append(boostItemTitle, boostItemPrice);
+        leftSideWrapper.append(boostItemIcon, boostInfoWrapper);
+        boostItem.append(leftSideWrapper, upgradeBoosterIcon);
+        boostersList.appendChild(boostItem);
+    }
+}
+
 function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, boosterPrice = 0) {
     Telegram.WebApp.showPopup(
         {
@@ -194,18 +243,32 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                 });
                 showLoader();
                 if (boosterName === 'Tapping Guru') {
-                    storageUser.daily_boosters_usage["Tapping Guru"] -= 1;
-                    localStorage.setItem('isTappingGuruActive', 'true');
-                    useDailyBooster(boosterName);
-                    setTimeout(() => localStorage.setItem('isTappingGuruActive', 'false'), 20000);
-                    localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                    if (storageUser.daily_boosters_usage["Tapping Guru"] !== 0) {
+                        storageUser.daily_boosters_usage["Tapping Guru"] -= 1;
+                        localStorage.setItem('isTappingGuruActive', 'true');
+                        useDailyBooster(boosterName);
+                        setTimeout(() => localStorage.setItem('isTappingGuruActive', 'false'), 20000);
+                        localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                        tapGuruCounter.textContent = storageUser.daily_boosters_usage['Tapping Guru'] + '/3';
+                    } else {
+                        Telegram.WebApp.showAlert('You have reached the maximum number of uses for today.');
+                    }
+
                     hideLoader();
                     contents.item(0).classList.add('active');
                 } else if (boosterName === 'Full Tank') {
-                    storageUser.current_energy = storageUser.max_energy;
-                    storageUser.daily_boosters_usage["Full Tank"] -= 1;
-                    useDailyBooster(boosterName);
-                    localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                    if (storageUser.daily_boosters_usage["Tapping Guru"] !== 0) {
+                        storageUser.current_energy = storageUser.max_energy;
+                        storageUser.daily_boosters_usage["Full Tank"] -= 1;
+                        useDailyBooster(boosterName);
+                        localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                        fullTankCounter.textContent = storageUser.daily_boosters_usage['Full Tank'] + '/3';
+                        currentEnergy = maxEnergy;
+                        updateEnergy();
+                    } else {
+                        Telegram.WebApp.showAlert('You have reached the maximum number of uses for today.');
+                    }
+
                     hideLoader();
                     contents.item(0).classList.add('active');
                 } else if (boosterName === 'Tap Bot') {
@@ -214,14 +277,18 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                 } else {
                     const booster = storageUser.boosters.find(booster => booster.title === boosterName);
                     if (storageUser.points > booster.price) {
-                        const calculatedPrice = calculate_upgrade_price(boosterName, boosterLevel + 1);
+                        showLoader();
+                        upgradeBooster(boosterName).then(() => {
+                            const calculatedPrice = calculate_upgrade_price(boosterName, boosterLevel + 1);
 
-                        booster.level += 1;
-                        booster.price = calculate_upgrade_price(boosterName, boosterLevel + 2);
-                        storageUser.points -= calculatedPrice;
-                        localStorage.setItem('user', JSON.stringify(storageUser));
-
-                        upgradeBooster(boosterName);
+                            booster.level += 1;
+                            booster.price = calculate_upgrade_price(boosterName, boosterLevel + 2);
+                            storageUser.points -= calculatedPrice;
+                            localStorage.setItem('user', JSON.stringify(storageUser));
+                            renderBoostersList(storageUser.boosters);
+                            hideLoader();
+                            contents.item(2).classList.add('active');
+                        });
                     } else {
 
                     }
@@ -229,6 +296,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                     hideLoader();
                     contents.item(2).classList.add('active');
                 }
+
             } else {
                 // pass
             }
