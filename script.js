@@ -60,9 +60,8 @@ function initData(storageUser) {
         if (currentEnergy > maxEnergy) {
             currentEnergy = maxEnergy;
         }
+        localStorage.setItem('loginTime', Date.now());
     }
-
-    1721135904
 
     for (let el of clickCounter) {
         const counterIcon = document.createElement('img');
