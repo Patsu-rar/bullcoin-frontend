@@ -52,7 +52,7 @@ function initData(storageUser) {
     if (!loginTime) {
         localStorage.setItem('loginTime', Date.now());
     } else {
-        currentEnergy += Math.floor((Date.now() - test) / 1000) * storageUser.boosters[2].level;
+        currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy > maxEnergy) {
             currentEnergy = maxEnergy;
         }
