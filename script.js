@@ -49,14 +49,20 @@ function initData(storageUser) {
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
 
+    console.log(loginTime);
+
     if (!loginTime) {
+        console.log(1);
         localStorage.setItem('loginTime', Date.now());
     } else {
+        console.log(2);
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy > maxEnergy) {
             currentEnergy = maxEnergy;
         }
     }
+
+    1721135904
 
     for (let el of clickCounter) {
         const counterIcon = document.createElement('img');
