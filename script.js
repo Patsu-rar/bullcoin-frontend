@@ -56,7 +56,8 @@ function initData(storageUser) {
     } else {
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy >= maxEnergy) {
-            let timeDifference = (currentEnergy - maxEnergy) / storageUser.boosters[2].level;
+            let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
+            console.log(timeDifference);
             currentEnergy = maxEnergy;
             storageUser.current_energy = currentEnergy;
 
