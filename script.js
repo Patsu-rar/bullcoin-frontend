@@ -39,7 +39,9 @@ let boostsLoaded = false;
 let maxEnergy;
 let currentEnergy;
 let clickCount;
-let telegramId;
+let tapBotInterval;
+let calculatedTime;
+
 // ************************** Set from endpoint **************************
 
 function initData(storageUser) {
@@ -49,21 +51,23 @@ function initData(storageUser) {
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
 
-    console.log(loginTime);
-
     if (!loginTime) {
-        console.log(1);
         localStorage.setItem('loginTime', Date.now());
     } else {
-        console.log(2);
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
-        if (currentEnergy > maxEnergy) {
+        if (currentEnergy >= maxEnergy) {
             currentEnergy = maxEnergy;
         }
         localStorage.setItem('loginTime', Date.now());
     }
 
+    if (storageUser.boosters[3].endTime) {
+        renderBoostersList(storageUser.boosters);
+    }
+
     for (let el of clickCounter) {
+        el.replaceChildren();
+
         const counterIcon = document.createElement('img');
         const counterTitle = document.createElement('div');
 
@@ -117,12 +121,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader();
             initTg();
-            const params = new URLSearchParams(Telegram.WebApp.initData);
-            const userData = JSON.parse(params.get('user'));
-            telegramId = userData.id;
-            console.log(userData);
-            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            // const response = await fetch(BACKEND_URL + `/user/550066310`);
+            // const params = new URLSearchParams(Telegram.WebApp.initData);
+            // const userData = JSON.parse(params.get('user'));
+            // telegramId = userData.id;
+            // console.log(userData);
+            // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            const response = await fetch(BACKEND_URL + `/user/550066310`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
@@ -193,21 +197,30 @@ async function useDailyBooster(boosterName) {
     }
 }
 
+function formatTime(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
 function renderBoostersList(boosters) {
     boostersList.innerHTML = '';
+    const storageUser = JSON.parse(localStorage.getItem('user'));
 
-    for (let el of clickCounter) {
+    for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
+        if (i !== 3) {
+            const counterIcon = document.createElement('img');
+            const counterTitle = document.createElement('div');
 
-        const counterIcon = document.createElement('img');
-        const counterTitle = document.createElement('div');
+            counterIcon.src = './assets/images/bullcoin_icon.png';
+            counterTitle.textContent = `${clickCount}`;
 
-        counterIcon.src = './assets/images/bullcoin_icon.png';
-        counterTitle.textContent = `${clickCount}`;
+            counterIcon.className = 'main-coin-icon';
 
-        counterIcon.className = 'main-coin-icon';
-
-        el.append(counterIcon, counterTitle);
+            el.append(counterIcon, counterTitle);
+        }
     }
 
     for (let boost of boosters) {
@@ -218,7 +231,7 @@ function renderBoostersList(boosters) {
         const boostInfoWrapper = document.createElement('div');
         const leftSideWrapper = document.createElement('div');
         const upgradeBoosterIcon = document.createElement('div');
-        const boostPriceWrapper = document.createElement('div');
+        let boostPriceWrapper = document.createElement('div');
         const counterIcon = document.createElement('img');
 
         boostItem.className = 'boost-list-item';
@@ -233,15 +246,9 @@ function renderBoostersList(boosters) {
         boostPriceWrapper.style.display = 'flex';
         boostPriceWrapper.style.alignItems = 'center';
         boostPriceWrapper.style.gap = '3px';
+
         counterIcon.src = './assets/images/bullcoin_icon.png';
         counterIcon.style.width = '15px';
-
-        if (boost.level) {
-            boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
-        } else {
-            boostItemPrice.textContent = boost.price;
-        }
-
         upgradeBoosterIcon.textContent = '+';
 
         boostInfoWrapper.style.display = 'flex';
@@ -251,19 +258,87 @@ function renderBoostersList(boosters) {
         upgradeBoosterIcon.style.fontSize = '34px';
         upgradeBoosterIcon.style.fontWeight = '700';
 
-        upgradeBoosterIcon.addEventListener('click', () =>
-            showConfirmationPopup(
-                'Upgrade booster',
-                'Are you sure you want to upgrade this booster?',
-                boost.title,
-                boost.level,
-                boost.price));
+        if (boost.title === 'Tap Bot') {
+            upgradeBoosterIcon.addEventListener('click', () =>
+                showConfirmationPopup(
+                    'Buy Tap Bot',
+                    'Are you sure you want to buy Tap Bot?',
+                    boost.title,
+                    boost.level,
+                    boost.price));
+        } else {
+            upgradeBoosterIcon.addEventListener('click', () =>
+                showConfirmationPopup(
+                    'Upgrade booster',
+                    'Are you sure you want to upgrade this booster?',
+                    boost.title,
+                    boost.level,
+                    boost.price));
+        }
 
         leftSideWrapper.style.display = 'flex';
         leftSideWrapper.style.alignItems = 'center';
         leftSideWrapper.style.gap = '3%';
 
-        boostPriceWrapper.append(counterIcon, boostItemPrice)
+        if (boost.level) {
+            boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
+            boostPriceWrapper.append(counterIcon, boostItemPrice);
+        } else {
+            if (boost.endTime && !tapBotInterval) {
+                upgradeBoosterIcon.style.display = 'none';
+
+                tapBotInterval = setInterval(function () {
+                    const storageUser = JSON.parse(localStorage.getItem('user'));
+                    let now = new Date().getTime();
+
+                    calculatedTime = new Date(storageUser.boosters[3].endTime).getTime()
+                        - new Date(storageUser.boosters[3].lastUpdated).getTime();
+
+                    if (calculatedTime < 0) {
+                        boostItemPrice.textContent = boost.price;
+                        boostPriceWrapper.replaceChildren();
+                        boostPriceWrapper.append(counterIcon, boostItemPrice);
+                        storageUser.boosters[3].lastUpdated = null;
+                        storageUser.boosters[3].endTime = null;
+                        localStorage.setItem('user', JSON.stringify(storageUser));
+                        upgradeBoosterIcon.style.display = 'block';
+                        clearInterval(tapBotInterval);
+                    } else {
+                        const tapBotCounterText = document.createElement('div');
+                        tapBotCounterText.textContent = formatTime(calculatedTime / 1000);
+
+                        if (currentEnergy === maxEnergy) {
+                            clickCount += storageUser.boosters[0].level;
+                            storageUser.points = clickCount;
+
+                            for (let [i, el] of clickCounter.entries()) {
+                                el.replaceChildren();
+                                if (i !== 3) {
+                                    const counterIcon = document.createElement('img');
+                                    const counterTitle = document.createElement('div');
+
+                                    counterIcon.src = './assets/images/bullcoin_icon.png';
+                                    counterTitle.textContent = `${clickCount}`;
+
+                                    counterIcon.className = 'main-coin-icon';
+
+                                    el.append(counterIcon, counterTitle);
+                                }
+                            }
+                        }
+
+                        storageUser.boosters[3].lastUpdated = new Date(now);
+
+                        boostPriceWrapper.textContent = tapBotCounterText.textContent;
+                        localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                    }
+                }.bind(this), 1000);
+            } else {
+                boostItemPrice.textContent = boost.price;
+                boostPriceWrapper.append(counterIcon, boostItemPrice)
+            }
+        }
+
         boostInfoWrapper.append(boostItemTitle, boostPriceWrapper);
         leftSideWrapper.append(boostItemIcon, boostInfoWrapper);
         boostItem.append(leftSideWrapper, upgradeBoosterIcon);
@@ -320,6 +395,15 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                         contents.item(2).classList.add('active');
                     }
                 } else if (boosterName === 'Tap Bot') {
+                    if (storageUser.points >= 200000) {
+                        storageUser.boosters[3].lastUpdated = Date.now();
+
+                        const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
+                        storageUser.boosters[3].endTime = Date.now() + twelveHoursInMilliseconds;
+
+                        renderBoostersList(storageUser.boosters);
+                    }
+
                     hideLoader();
                     contents.item(2).classList.add('active');
                 } else {
@@ -456,7 +540,8 @@ function recoverEnergy() {
     const calculatedEnergy = storageUser.boosters[2].level;
     currentEnergy += calculatedEnergy;
     if (currentEnergy > maxEnergy) {
-      currentEnergy = maxEnergy;
+        currentEnergy = maxEnergy;
+        // renderBoostersList(storageUser.boosters);
     }
     storageUser.current_energy = currentEnergy;
     localStorage.setItem('user', JSON.stringify(storageUser));
@@ -596,7 +681,7 @@ function handleMenuClick(event) {
     const target = event.target.getAttribute('data-target');
     const storageUser = JSON.parse(localStorage.getItem('user'));
 
-    clickCounter.forEach( (el, i) =>{
+    clickCounter.forEach((el, i) => {
         el.replaceChildren();
 
         const counterTitle = document.createElement('div');
@@ -673,7 +758,8 @@ function handleMenuClick(event) {
                     taskButton.textContent = 'Claim';
                     taskButton.type = 'button';
                     taskButton.addEventListener('click', () => {
-                        console.log(1)});
+                        console.log(1)
+                    });
                 } else {
                     taskButton.className = 'task-list-redirect-icon';
                     taskButton.textContent = '>';
@@ -716,67 +802,8 @@ function handleMenuClick(event) {
 
         adjustFontSize(boostsContentCounter);
 
-        if (boostsLoaded === false) {
-            for (let boost of boosters) {
-                const boostItem = document.createElement('div');
-                const boostItemIcon = document.createElement('img');
-                const boostItemTitle = document.createElement('div');
-                const boostItemPrice = document.createElement('div');
-                const boostInfoWrapper = document.createElement('div');
-                const leftSideWrapper = document.createElement('div');
-                const upgradeBoosterIcon = document.createElement('div');
-                const boostPriceWrapper = document.createElement('div');
-                const counterIcon = document.createElement('img');
-
-                boostItem.className = 'boost-list-item';
-                boostItemIcon.className = 'boost-item-icon';
-                boostItemTitle.className = 'boost-item-title';
-                boostItemPrice.className = 'boost-item-price';
-                counterIcon.className = 'main-coin-icon';
-
-                boostItemIcon.src = `./assets/images/${boost.imgRef}`;
-                boostItemTitle.textContent = boost.title;
-
-                boostPriceWrapper.style.display = 'flex';
-                boostPriceWrapper.style.alignItems = 'center';
-                boostPriceWrapper.style.gap = '3px';
-                counterIcon.src = './assets/images/bullcoin_icon.png';
-                counterIcon.style.width = '15px';
-
-                if (boost.level) {
-                    boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
-                } else {
-                    boostItemPrice.textContent = boost.price;
-                }
-
-                upgradeBoosterIcon.textContent = '+';
-
-                boostInfoWrapper.style.display = 'flex';
-                boostInfoWrapper.style.flexDirection = 'column';
-                boostInfoWrapper.style.gap = '1%';
-
-                upgradeBoosterIcon.style.fontSize = '34px';
-                upgradeBoosterIcon.style.fontWeight = '700';
-
-                upgradeBoosterIcon.addEventListener('click', () =>
-                    showConfirmationPopup(
-                        'Upgrade booster',
-                        'Are you sure you want to upgrade this booster?',
-                        boost.title,
-                        boost.level,
-                        boost.price));
-
-                leftSideWrapper.style.display = 'flex';
-                leftSideWrapper.style.alignItems = 'center';
-                leftSideWrapper.style.gap = '3%';
-
-                boostPriceWrapper.append(counterIcon, boostItemPrice)
-                boostInfoWrapper.append(boostItemTitle, boostPriceWrapper);
-                leftSideWrapper.append(boostItemIcon, boostInfoWrapper)
-                boostItem.append(leftSideWrapper, upgradeBoosterIcon);
-                boostersList.appendChild(boostItem);
-            }
-            boostsLoaded = true;
+        if (!tapBotInterval) {
+            renderBoostersList(storageUser.boosters);
         }
     } else if (target === 'ref-content') {
         const refContentCounter = document.querySelectorAll('.coin-counter')[3];
