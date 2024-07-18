@@ -57,10 +57,12 @@ function initData(storageUser) {
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy >= maxEnergy) {
             currentEnergy = maxEnergy;
-            clickCount += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[0].level;
-
-            storageUser.points = clickCount;
             storageUser.current_energy = currentEnergy;
+
+            if (storageUser.boosters[3].endTime) {
+                clickCount += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[0].level;
+                storageUser.points = clickCount;
+            }
 
             localStorage.setItem('user', JSON.stringify(storageUser));
         }
@@ -406,6 +408,8 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
 
                         const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
                         storageUser.boosters[3].endTime = Date.now() + twelveHoursInMilliseconds;
+
+                        localStorage.setItem('user', JSON.stringify(storageUser));
 
                         renderBoostersList(storageUser.boosters);
                     }
