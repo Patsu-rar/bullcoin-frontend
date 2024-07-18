@@ -56,11 +56,12 @@ function initData(storageUser) {
     } else {
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy >= maxEnergy) {
+            let timeDifference = (currentEnergy - maxEnergy) / storageUser.boosters[2].level;
             currentEnergy = maxEnergy;
             storageUser.current_energy = currentEnergy;
 
             if (storageUser.boosters[3].endTime) {
-                clickCount += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[0].level;
+                clickCount += timeDifference * storageUser.boosters[0].level;
                 storageUser.points = clickCount;
             }
 
