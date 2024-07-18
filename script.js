@@ -71,6 +71,13 @@ function initData(storageUser) {
 
     if (storageUser.boosters[3].endTime) {
         renderBoostersList(storageUser.boosters);
+    } else {
+        storageUser.boosters[3].lastUpdated = Date.now();
+
+        const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
+        storageUser.boosters[3].endTime = Date.now() + twelveHoursInMilliseconds;
+
+        localStorage.setItem('user', JSON.stringify(storageUser));
     }
 
     for (let el of clickCounter) {
@@ -333,9 +340,9 @@ function renderBoostersList(boosters) {
                                     el.append(counterIcon, counterTitle);
                                 }
                             }
-
-                            storageUser.boosters[3].lastUpdated = new Date(now);
                         }
+
+                        storageUser.boosters[3].lastUpdated = new Date(now);
 
                         boostPriceWrapper.textContent = tapBotCounterText.textContent;
                         localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
@@ -551,7 +558,6 @@ function recoverEnergy() {
     currentEnergy += calculatedEnergy;
     if (currentEnergy > maxEnergy) {
         currentEnergy = maxEnergy;
-        renderBoostersList(storageUser.boosters);
     }
     storageUser.current_energy = currentEnergy;
     localStorage.setItem('user', JSON.stringify(storageUser));
