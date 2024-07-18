@@ -71,13 +71,6 @@ function initData(storageUser) {
 
     if (storageUser.boosters[3].endTime) {
         renderBoostersList(storageUser.boosters);
-    } else {
-        storageUser.boosters[3].lastUpdated = Date.now();
-
-        const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
-        storageUser.boosters[3].endTime = Date.now() + twelveHoursInMilliseconds;
-
-        localStorage.setItem('user', JSON.stringify(storageUser));
     }
 
     for (let el of clickCounter) {
@@ -136,12 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader();
             initTg();
-            // const params = new URLSearchParams(Telegram.WebApp.initData);
-            // const userData = JSON.parse(params.get('user'));
-            // telegramId = userData.id;
-            // console.log(userData);
-            // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            const response = await fetch(BACKEND_URL + `/user/550066310`);
+            const params = new URLSearchParams(Telegram.WebApp.initData);
+            const userData = JSON.parse(params.get('user'));
+            telegramId = userData.id;
+            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            // const response = await fetch(BACKEND_URL + `/user/550066310`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
