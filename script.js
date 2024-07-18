@@ -57,6 +57,12 @@ function initData(storageUser) {
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy >= maxEnergy) {
             currentEnergy = maxEnergy;
+            clickCount += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[0].level;
+
+            storageUser.points = clickCount;
+            storageUser.current_energy = currentEnergy;
+
+            localStorage.setItem('user', JSON.stringify(storageUser));
         }
         localStorage.setItem('loginTime', Date.now());
     }
@@ -325,9 +331,9 @@ function renderBoostersList(boosters) {
                                     el.append(counterIcon, counterTitle);
                                 }
                             }
-                        }
 
-                        storageUser.boosters[3].lastUpdated = new Date(now);
+                            storageUser.boosters[3].lastUpdated = new Date(now);
+                        }
 
                         boostPriceWrapper.textContent = tapBotCounterText.textContent;
                         localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
@@ -541,7 +547,7 @@ function recoverEnergy() {
     currentEnergy += calculatedEnergy;
     if (currentEnergy > maxEnergy) {
         currentEnergy = maxEnergy;
-        // renderBoostersList(storageUser.boosters);
+        renderBoostersList(storageUser.boosters);
     }
     storageUser.current_energy = currentEnergy;
     localStorage.setItem('user', JSON.stringify(storageUser));
