@@ -41,6 +41,7 @@ let currentEnergy;
 let clickCount;
 let tapBotInterval;
 let calculatedTime;
+let onlineTapBotCounter;
 // ************************** Set from endpoint **************************
 
 function initData(storageUser) {
@@ -59,7 +60,7 @@ function initData(storageUser) {
             storageUser.current_energy = currentEnergy;
 
             if (storageUser.boosters[3].endTime) {
-                let onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
+                onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
                 let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
                 clickCount += (timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter;
                 storageUser.points = clickCount;
