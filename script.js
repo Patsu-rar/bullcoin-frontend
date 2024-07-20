@@ -41,7 +41,6 @@ let currentEnergy;
 let clickCount;
 let tapBotInterval;
 let calculatedTime;
-
 // ************************** Set from endpoint **************************
 
 function initData(storageUser) {
@@ -56,17 +55,19 @@ function initData(storageUser) {
     } else {
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy >= maxEnergy) {
-            let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
             console.log(timeDifference);
             currentEnergy = maxEnergy;
             storageUser.current_energy = currentEnergy;
 
             if (storageUser.boosters[3].endTime) {
-                clickCount += timeDifference * storageUser.boosters[0].level;
+                let onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
+                let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
+                clickCount += (timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter;
                 storageUser.points = clickCount;
             }
 
             localStorage.setItem('user', JSON.stringify(storageUser));
+            localStorage.setItem('onlineTapBotCounter', '0');
         }
         localStorage.setItem('loginTime', Date.now());
     }
@@ -319,6 +320,9 @@ function renderBoostersList(boosters) {
                         if (currentEnergy === maxEnergy) {
                             clickCount += storageUser.boosters[0].level;
                             storageUser.points = clickCount;
+                            onlineTapBotCounter += storageUser.boosters[0].level;
+
+                            localStorage.setItem('onlineTapBotCounter', onlineTapBotCounter);
 
                             for (let [i, el] of clickCounter.entries()) {
                                 el.replaceChildren();
@@ -339,7 +343,7 @@ function renderBoostersList(boosters) {
                         storageUser.boosters[3].lastUpdated = new Date(now);
 
                         boostPriceWrapper.textContent = tapBotCounterText.textContent;
-                        localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                        localStorage.setItem('user', JSON.stringify(storageUser));
                     }
                 }.bind(this), 1000);
             } else {
@@ -409,6 +413,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
 
                         const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
                         storageUser.boosters[3].endTime = Date.now() + twelveHoursInMilliseconds;
+                        storageUser.points -= 200000;
 
                         localStorage.setItem('user', JSON.stringify(storageUser));
 
