@@ -63,6 +63,9 @@ function initData(storageUser) {
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
                 let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
                 clickCount += (timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter;
+                console.log('onlineCounter', onlineTapBotCounter);
+                console.log('onlineCounter', timeDifference);
+                console.log('onlineCounter', clickCount);
                 storageUser.points = clickCount;
             }
 
