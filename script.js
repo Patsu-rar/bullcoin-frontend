@@ -56,9 +56,6 @@ function initData(storageUser) {
     } else {
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy >= maxEnergy) {
-            currentEnergy = maxEnergy;
-            storageUser.current_energy = currentEnergy;
-
             if (storageUser.boosters[3].endTime) {
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
                 let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
@@ -68,6 +65,9 @@ function initData(storageUser) {
                 console.log('onlineCounter', clickCount);
                 storageUser.points = clickCount;
             }
+
+            currentEnergy = maxEnergy;
+            storageUser.current_energy = currentEnergy;
 
             localStorage.setItem('user', JSON.stringify(storageUser));
             localStorage.setItem('onlineTapBotCounter', '0');
