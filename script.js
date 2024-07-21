@@ -71,6 +71,7 @@ function initData(storageUser) {
 
             localStorage.setItem('user', JSON.stringify(storageUser));
             localStorage.setItem('onlineTapBotCounter', '0');
+            onlineTapBotCounter = 0;
         }
         localStorage.setItem('loginTime', Date.now());
     }
