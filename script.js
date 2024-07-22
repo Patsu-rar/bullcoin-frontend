@@ -30,11 +30,9 @@ const refUrl = document.querySelector('.ref-url');
 const menuItems = document.querySelectorAll('.menu-icon');
 const contents = document.querySelectorAll('.content');
 
-// ************************** Set these from endpoint **************************
 let tasks;
 let boosters;
 let referralsList;
-let boostsLoaded = false;
 
 let maxEnergy;
 let currentEnergy;
@@ -42,7 +40,6 @@ let clickCount;
 let tapBotInterval;
 let calculatedTime;
 let onlineTapBotCounter;
-// ************************** Set from endpoint **************************
 
 function initData(storageUser) {
     clickCount = storageUser.points;
@@ -59,13 +56,7 @@ function initData(storageUser) {
             if (storageUser.boosters[3].endTime) {
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
                 let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
-                console.log(currentEnergy);
-                console.log(maxEnergy);
-                console.log(storageUser.boosters[2].level);
                 clickCount += Math.abs((timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter);
-                console.log('onlineCounter', onlineTapBotCounter);
-                console.log('timeDifference', timeDifference);
-                console.log('clickCount', clickCount);
                 storageUser.points = clickCount;
             }
 
@@ -237,6 +228,15 @@ function renderBoostersList(boosters) {
             counterIcon.className = 'main-coin-icon';
 
             el.append(counterIcon, counterTitle);
+        } else {
+            const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+            if (referralsList) {
+                refContentCounter.textContent = `${referralsList.length} Referrals`
+            } else {
+                refContentCounter.textContent = '0 Referrals';
+            }
+            adjustFontSize(refContentCounter);
         }
     }
 
@@ -343,6 +343,15 @@ function renderBoostersList(boosters) {
                                     counterIcon.className = 'main-coin-icon';
 
                                     el.append(counterIcon, counterTitle);
+                                } else {
+                                    const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+                                    if (referralsList) {
+                                        refContentCounter.textContent = `${referralsList.length} Referrals`
+                                    } else {
+                                        refContentCounter.textContent = '0 Referrals';
+                                    }
+                                    adjustFontSize(refContentCounter);
                                 }
                             }
                         }
@@ -421,6 +430,31 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                         const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
                         storageUser.boosters[3].endTime = Date.now() + twelveHoursInMilliseconds;
                         storageUser.points -= 200000;
+                        clickCount -= 200000;
+
+                        for (let [i, el] of clickCounter.entries()) {
+                            el.replaceChildren();
+                            if (i !== 3) {
+                                const counterIcon = document.createElement('img');
+                                const counterTitle = document.createElement('div');
+
+                                counterIcon.src = './assets/images/bullcoin_icon.png';
+                                counterTitle.textContent = `${clickCount}`;
+
+                                counterIcon.className = 'main-coin-icon';
+
+                                el.append(counterIcon, counterTitle);
+                            } else {
+                                const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+                                if (referralsList) {
+                                    refContentCounter.textContent = `${referralsList.length} Referrals`
+                                } else {
+                                    refContentCounter.textContent = '0 Referrals';
+                                }
+                                adjustFontSize(refContentCounter);
+                            }
+                        }
 
                         localStorage.setItem('user', JSON.stringify(storageUser));
 
@@ -604,30 +638,13 @@ function copyToClipboard() {
     });
 }
 
-function redirectToChannel(channelUsername) {
-    const channelLink = `https://t.me/${channelUsername}`;
-    Telegram.WebApp.openTelegramLink(channelLink);
-}
-
-function handleTasksClick(event) {
-    const target = event.target.getAttribute('data-target');
-
+function renderTasksList(tasks, target) {
     refTaskList.replaceChildren();
+    specialTaskList.replaceChildren();
 
-    tasksNavigationItems.forEach(item => {
-        item.classList.remove('active');
-    });
-
-    taskListContents.forEach(content => {
-        content.classList.remove('active');
-    });
-
-    event.target.classList.add('active');
-    document.getElementById(target).classList.add('active');
+    const storageUser = JSON.parse(localStorage.getItem('user'));
 
     if (target === 'ref-tasks') {
-        const storageUser = JSON.parse(localStorage.getItem('user'));
-
         for (let task of tasks.referral) {
             const taskListItem = document.createElement('div');
 
@@ -656,8 +673,53 @@ function handleTasksClick(event) {
 
             taskButton.disabled = task.needed_invitations > storageUser.invited_count || task.completed;
 
-            taskButton.addEventListener('click', () => {
+            if (task.completed) {
+                taskButton.textContent = 'Claimed';
+            }
 
+            taskButton.addEventListener('click', () => {
+                completeTask(task.task_id).then(() => {
+                    showLoader();
+                    getUserTasksList().then(res => {
+                        tasks = res;
+
+                        tasksNavigationItems[1].classList.add('active');
+                        taskListContents[1].classList.add('active');
+                        renderTasksList(tasks, 'ref-tasks');
+
+                        clickCount += task.reward;
+                        storageUser.points = clickCount;
+
+                        localStorage.setItem('user', JSON.stringify(storageUser));
+
+                        for (let [i, el] of clickCounter.entries()) {
+                            el.replaceChildren();
+                            if (i !== 3) {
+                                const counterIcon = document.createElement('img');
+                                const counterTitle = document.createElement('div');
+
+                                counterIcon.src = './assets/images/bullcoin_icon.png';
+                                counterTitle.textContent = `${clickCount}`;
+
+                                counterIcon.className = 'main-coin-icon';
+
+                                el.append(counterIcon, counterTitle);
+                            } else {
+                                const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+                                if (referralsList) {
+                                    refContentCounter.textContent = `${referralsList.length} Referrals`
+                                } else {
+                                    refContentCounter.textContent = '0 Referrals';
+                                }
+                                adjustFontSize(refContentCounter);
+                            }
+                        }
+
+                        hideLoader();
+                        contents.item(1).classList.add('active');
+                    });
+                });
             });
 
             taskRightSide.style.display = 'flex';
@@ -676,7 +738,130 @@ function handleTasksClick(event) {
             taskListItem.append(taskRightSide, taskButton);
             taskListContents[1].appendChild(taskListItem);
         }
+    } else if (target === 'special-tasks') {
+        for (let task of tasks.special) {
+            const taskListItem = document.createElement('div');
+
+            const taskRightSide = document.createElement('div');
+            const taskIcon = document.createElement('img');
+            const taskTitle = document.createElement('div');
+            const taskBonus = document.createElement('div');
+            const taskInfoWrapper = document.createElement('div');
+            const counterIcon = document.createElement('img');
+            const bonusWrapper = document.createElement('div');
+            const taskButton = document.createElement('button');
+
+            counterIcon.className = 'main-coin-icon';
+            taskListItem.className = 'task-list-item';
+            taskInfoWrapper.className = 'task-info-wrapper';
+            taskIcon.className = 'task-list-icon';
+            taskTitle.className = 'task-list-title';
+            taskBonus.className = 'task-list-bonus';
+
+            if (task.subscribed) {
+                if (task.completed) {
+                    taskButton.className = 'ref-btn';
+                    taskButton.textContent = 'Claimed';
+                    taskButton.type = 'button';
+                    taskButton.disabled = true;
+                } else {
+                    taskButton.className = 'ref-btn';
+                    taskButton.textContent = 'Claim';
+                    taskButton.type = 'button';
+                    taskButton.addEventListener('click', () => {
+                        completeTask(task.task_id).then(() => {
+                            showLoader();
+                            getUserTasksList().then(res => {
+                                tasks = res;
+
+                                tasksNavigationItems[0].classList.add('active');
+                                taskListContents[0].classList.add('active');
+                                renderTasksList(tasks, 'special-tasks');
+
+                                clickCount += task.reward;
+                                storageUser.points = clickCount;
+
+                                localStorage.setItem('user', JSON.stringify(storageUser));
+
+                                for (let [i, el] of clickCounter.entries()) {
+                                    el.replaceChildren();
+                                    if (i !== 3) {
+                                        const counterIcon = document.createElement('img');
+                                        const counterTitle = document.createElement('div');
+
+                                        counterIcon.src = './assets/images/bullcoin_icon.png';
+                                        counterTitle.textContent = `${clickCount}`;
+
+                                        counterIcon.className = 'main-coin-icon';
+
+                                        el.append(counterIcon, counterTitle);
+                                    } else {
+                                        const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+                                        if (referralsList) {
+                                            refContentCounter.textContent = `${referralsList.length} Referrals`
+                                        } else {
+                                            refContentCounter.textContent = '0 Referrals';
+                                        }
+                                        adjustFontSize(refContentCounter);
+                                    }
+                                }
+
+                                hideLoader();
+                                contents.item(1).classList.add('active');
+                            });
+                        });
+                    });
+                }
+            } else {
+                taskButton.className = 'task-list-redirect-icon';
+                taskButton.textContent = '>';
+                taskButton.type = 'button';
+                taskButton.addEventListener('click', () => {
+                    Telegram.WebApp.openTelegramLink(task.task_url);
+                });
+            }
+
+            taskIcon.src = './assets/images/task_icon.png';
+            taskTitle.textContent = task.title;
+            taskBonus.textContent = task.reward;
+
+            taskRightSide.style.display = 'flex';
+            taskRightSide.style.alignItems = 'center';
+
+            bonusWrapper.style.display = 'flex';
+            bonusWrapper.style.alignItems = 'center';
+            bonusWrapper.style.gap = '3px';
+
+            counterIcon.src = './assets/images/bullcoin_icon.png';
+            counterIcon.style.width = '15px';
+
+            bonusWrapper.append(counterIcon, taskBonus)
+            taskInfoWrapper.append(taskTitle, bonusWrapper);
+            taskRightSide.append(taskIcon, taskInfoWrapper);
+            taskListItem.append(taskRightSide, taskButton);
+            taskListContents[0].appendChild(taskListItem);
+        }
     }
+}
+
+function handleTasksClick(event) {
+    const target = event.target.getAttribute('data-target');
+
+    refTaskList.replaceChildren();
+    specialTaskList.replaceChildren();
+
+    tasksNavigationItems.forEach(item => {
+        item.classList.remove('active');
+    });
+
+    taskListContents.forEach(content => {
+        content.classList.remove('active');
+    });
+
+    event.target.classList.add('active');
+    document.getElementById(target).classList.add('active');
+    renderTasksList(tasks, target);
 }
 
 async function getReferralsList() {
@@ -696,6 +881,24 @@ async function getUserTasksList() {
         return response.json();
     } catch (error) {
         console.error('Error fetching user data:', error);
+    }
+}
+
+async function completeTask(task_id) {
+    try {
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/complete_task`, {
+            method: 'POST',
+            body: JSON.stringify({
+                task_id: task_id,
+                current_score: storageUser.points
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+    } catch (error) {
+        console.error('Error completing the task:', error);
     }
 }
 
@@ -747,72 +950,14 @@ function handleMenuClick(event) {
         adjustFontSize(homeContentCounter);
     } else if (target === 'tasks-content') {
         const tasksContentCounter = document.querySelectorAll('.coin-counter')[1];
-        specialTaskList.replaceChildren();
+        adjustFontSize(tasksContentCounter);
         showLoader();
         getUserTasksList().then(res => {
             tasks = res;
 
             tasksNavigationItems[0].classList.add('active');
             taskListContents[0].classList.add('active');
-
-            for (let task of tasks.special) {
-                const taskListItem = document.createElement('div');
-
-                const taskRightSide = document.createElement('div');
-                const taskIcon = document.createElement('img');
-                const taskTitle = document.createElement('div');
-                const taskBonus = document.createElement('div');
-                const taskRedirectIcon = document.createElement('div');
-                const taskInfoWrapper = document.createElement('div');
-                const counterIcon = document.createElement('img');
-                const bonusWrapper = document.createElement('div');
-                const taskButton = document.createElement('button');
-
-                counterIcon.className = 'main-coin-icon';
-                taskListItem.className = 'task-list-item';
-                taskInfoWrapper.className = 'task-info-wrapper';
-                taskIcon.className = 'task-list-icon';
-                taskTitle.className = 'task-list-title';
-                taskBonus.className = 'task-list-bonus';
-
-                if (task.subscribed) {
-                    taskButton.className = 'ref-btn';
-                    taskButton.textContent = 'Claim';
-                    taskButton.type = 'button';
-                    taskButton.addEventListener('click', () => {
-                        console.log(1)
-                    });
-                } else {
-                    taskButton.className = 'task-list-redirect-icon';
-                    taskButton.textContent = '>';
-                    taskButton.type = 'button';
-                    taskButton.addEventListener('click', () => {
-                        Telegram.WebApp.openTelegramLink(task.task_url);
-                    });
-                }
-
-                taskIcon.src = './assets/images/task_icon.png';
-                taskTitle.textContent = task.title;
-                taskBonus.textContent = task.reward;
-
-                taskRightSide.style.display = 'flex';
-                taskRightSide.style.alignItems = 'center';
-
-                bonusWrapper.style.display = 'flex';
-                bonusWrapper.style.alignItems = 'center';
-                bonusWrapper.style.gap = '3px';
-
-                counterIcon.src = './assets/images/bullcoin_icon.png';
-                counterIcon.style.width = '15px';
-
-                bonusWrapper.append(counterIcon, taskBonus)
-                taskInfoWrapper.append(taskTitle, bonusWrapper);
-                taskRightSide.append(taskIcon, taskInfoWrapper);
-                taskListItem.append(taskRightSide, taskButton);
-                taskListContents[0].appendChild(taskListItem);
-            }
-
-            adjustFontSize(tasksContentCounter);
+            renderTasksList(tasks, 'special-tasks');
 
             hideLoader();
             contents.item(1).classList.add('active');
