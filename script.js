@@ -48,6 +48,8 @@ function initData(storageUser) {
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
 
+    coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.points)}.png`;
+
     if (!loginTime) {
         localStorage.setItem('loginTime', Date.now());
     } else {
@@ -131,11 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
             showLoader();
             initTg();
             localStorage.removeItem('user');
-            // const params = new URLSearchParams(Telegram.WebApp.initData);
-            // const userData = JSON.parse(params.get('user'));
-            // telegramId = userData.id;
-            // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            const response = await fetch(BACKEND_URL + `/user/550066310`);
+            const params = new URLSearchParams(Telegram.WebApp.initData);
+            const userData = JSON.parse(params.get('user'));
+            telegramId = userData.id;
+            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            // const response = await fetch(BACKEND_URL + `/user/550066310`);
             const data = await response.json();
 
             localStorage.setItem('user', JSON.stringify(data));
@@ -552,13 +554,25 @@ function adjustFontSize(el) {
     }
 }
 
+function getIconLevel(points) {
+    if (points < 1_000_000) return 1;
+    if (points < 3_000_000) return 2;
+    if (points < 5_000_000) return 3;
+    if (points < 10_000_000) return 4;
+    if (points < 20_000_000) return 5;
+    if (points < 40_000_000) return 6;
+    if (points < 60_000_000) return 7;
+    if (points < 80_000_000) return 8;
+    return 9;
+}
+
 function decreaseEnergy(event) {
     event.stopPropagation();
     event.preventDefault();
+    let storageUser = JSON.parse(localStorage.getItem('user'));
 
     for (let touch of event.changedTouches) {
         if (currentEnergy > 0) {
-            let storageUser = JSON.parse(localStorage.getItem('user'));
             const isTappingGuruActive = JSON.parse(localStorage.getItem('isTappingGuruActive'));
             let calculatedScore = storageUser.boosters[0].level;
             if (!isTappingGuruActive) {
@@ -576,6 +590,7 @@ function decreaseEnergy(event) {
             localStorage.setItem('lastClickTime', `${new Date().toUTCString()}`);
         }
     }
+    coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.points)}.png`;
     updateEnergy();
     for (let el of clickCounter) {
         el.replaceChildren();
