@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoader();
             initTg();
+            localStorage.removeItem('user');
             // const params = new URLSearchParams(Telegram.WebApp.initData);
             // const userData = JSON.parse(params.get('user'));
             // telegramId = userData.id;
