@@ -38,7 +38,6 @@ let maxEnergy;
 let currentEnergy;
 let clickCount;
 let tapBotInterval;
-let calculatedTime;
 let onlineTapBotCounter;
 
 function initData(storageUser) {
@@ -55,12 +54,10 @@ function initData(storageUser) {
     } else {
         currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
         if (currentEnergy >= maxEnergy) {
-            if (storageUser.boosters[3].endTime) {
-                onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
-                let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
-                clickCount += Math.abs((timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter);
-                storageUser.points = clickCount;
-            }
+            onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
+            let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
+            clickCount += Math.abs((timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter);
+            storageUser.points = clickCount;
 
             currentEnergy = maxEnergy;
             storageUser.current_energy = currentEnergy;
@@ -72,9 +69,7 @@ function initData(storageUser) {
         localStorage.setItem('loginTime', Date.now());
     }
 
-    if (storageUser.boosters[3].endTime) {
-        renderBoostersList(storageUser.boosters);
-    }
+    renderBoostersList(storageUser.boosters);
 
     for (let el of clickCounter) {
         el.replaceChildren();
@@ -301,69 +296,55 @@ function renderBoostersList(boosters) {
         leftSideWrapper.style.gap = '3%';
 
         if (boost.level) {
-            boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
+            if (boost.title === 'Recharging Speed' && boost.level === 5) {
+                boostItemPrice.textContent = 'Max level';
+                upgradeBoosterIcon.style.display = 'none';
+            } else {
+                boostItemPrice.textContent = boost.price + ' | ' + boost.level + ' level';
+            }
+
             boostPriceWrapper.append(counterIcon, boostItemPrice);
         } else {
-            if (boost.endTime && !tapBotInterval) {
+            if (boost.bought && !tapBotInterval) {
                 upgradeBoosterIcon.style.display = 'none';
 
                 tapBotInterval = setInterval(function () {
                     const storageUser = JSON.parse(localStorage.getItem('user'));
-                    let now = new Date().getTime();
 
-                    calculatedTime = new Date(storageUser.boosters[3].endTime).getTime()
-                        - new Date(storageUser.boosters[3].lastUpdated).getTime();
+                    if (currentEnergy === maxEnergy) {
+                        clickCount += storageUser.boosters[0].level;
+                        storageUser.points = clickCount;
+                        onlineTapBotCounter += storageUser.boosters[0].level;
 
-                    if (calculatedTime < 0) {
-                        boostItemPrice.textContent = boost.price;
-                        boostPriceWrapper.replaceChildren();
-                        boostPriceWrapper.append(counterIcon, boostItemPrice);
-                        storageUser.boosters[3].lastUpdated = null;
-                        storageUser.boosters[3].endTime = null;
-                        localStorage.setItem('user', JSON.stringify(storageUser));
-                        upgradeBoosterIcon.style.display = 'block';
-                        clearInterval(tapBotInterval);
-                    } else {
-                        const tapBotCounterText = document.createElement('div');
-                        tapBotCounterText.textContent = formatTime(calculatedTime / 1000);
+                        localStorage.setItem('onlineTapBotCounter', onlineTapBotCounter);
 
-                        if (currentEnergy === maxEnergy) {
-                            clickCount += storageUser.boosters[0].level;
-                            storageUser.points = clickCount;
-                            onlineTapBotCounter += storageUser.boosters[0].level;
+                        for (let [i, el] of clickCounter.entries()) {
+                            el.replaceChildren();
+                            if (i !== 3) {
+                                const counterIcon = document.createElement('img');
+                                const counterTitle = document.createElement('div');
 
-                            localStorage.setItem('onlineTapBotCounter', onlineTapBotCounter);
+                                counterIcon.src = './assets/images/bullcoin_icon.png';
+                                counterTitle.textContent = `${clickCount}`;
 
-                            for (let [i, el] of clickCounter.entries()) {
-                                el.replaceChildren();
-                                if (i !== 3) {
-                                    const counterIcon = document.createElement('img');
-                                    const counterTitle = document.createElement('div');
+                                counterIcon.className = 'main-coin-icon';
 
-                                    counterIcon.src = './assets/images/bullcoin_icon.png';
-                                    counterTitle.textContent = `${clickCount}`;
+                                el.append(counterIcon, counterTitle);
+                            } else {
+                                const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
-                                    counterIcon.className = 'main-coin-icon';
-
-                                    el.append(counterIcon, counterTitle);
+                                if (referralsList) {
+                                    refContentCounter.textContent = `${referralsList.length} Referrals`
                                 } else {
-                                    const refContentCounter = document.querySelectorAll('.coin-counter')[3];
-
-                                    if (referralsList) {
-                                        refContentCounter.textContent = `${referralsList.length} Referrals`
-                                    } else {
-                                        refContentCounter.textContent = '0 Referrals';
-                                    }
-                                    adjustFontSize(refContentCounter);
+                                    refContentCounter.textContent = '0 Referrals';
                                 }
+                                adjustFontSize(refContentCounter);
                             }
                         }
-
-                        storageUser.boosters[3].lastUpdated = new Date(now);
-
-                        boostPriceWrapper.textContent = tapBotCounterText.textContent;
-                        localStorage.setItem('user', JSON.stringify(storageUser));
                     }
+
+                    localStorage.setItem('user', JSON.stringify(storageUser));
+
                 }.bind(this), 1000);
             } else {
                 boostItemPrice.textContent = boost.price;
@@ -428,10 +409,8 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                     }
                 } else if (boosterName === 'Tap Bot') {
                     if (storageUser.points >= 200000) {
-                        storageUser.boosters[3].lastUpdated = Date.now();
+                        storageUser.boosters[3].bought = true;
 
-                        const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
-                        storageUser.boosters[3].endTime = Date.now() + twelveHoursInMilliseconds;
                         storageUser.points -= 200000;
                         clickCount -= 200000;
 
@@ -489,8 +468,6 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                             hideLoader();
                             contents.item(2).classList.add('active');
                         });
-                    } else {
-
                     }
 
                     hideLoader();
@@ -515,7 +492,7 @@ function calculate_upgrade_price(boosterName, level) {
         } else if (level === 5) {
             return 250000;
         } else {
-            return null;
+            return 'max';
         }
     } else {
         if (2 <= level <= 8) {
@@ -582,6 +559,17 @@ function decreaseEnergy(event) {
             }
             clickCount += calculatedScore;
             showFloatingNumber(touch, calculatedScore);
+
+            const rect = coin.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            const rotateX = ((y / rect.height) - 0.5) * 20;
+            const rotateY = ((x / rect.width) - 0.5) * (-20);
+
+            coin.style.transform = `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            setTimeout(() => {
+                coin.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg)';
+            }, 100);
 
             storageUser.points = clickCount;
             storageUser.current_energy = currentEnergy;
@@ -701,12 +689,14 @@ function renderTasksList(tasks, target) {
 
                         tasksNavigationItems[1].classList.add('active');
                         taskListContents[1].classList.add('active');
-                        renderTasksList(tasks, 'ref-tasks');
 
                         clickCount += task.reward;
                         storageUser.points = clickCount;
+                        storageUser.tasks = tasks;
 
                         localStorage.setItem('user', JSON.stringify(storageUser));
+
+                        renderTasksList(storageUser.tasks, 'ref-tasks');
 
                         for (let [i, el] of clickCounter.entries()) {
                             el.replaceChildren();
@@ -792,12 +782,14 @@ function renderTasksList(tasks, target) {
 
                                 tasksNavigationItems[0].classList.add('active');
                                 taskListContents[0].classList.add('active');
-                                renderTasksList(tasks, 'special-tasks');
 
                                 clickCount += task.reward;
                                 storageUser.points = clickCount;
+                                storageUser.tasks = tasks;
 
                                 localStorage.setItem('user', JSON.stringify(storageUser));
+
+                                renderTasksList(storageUser.tasks, 'special-tasks');
 
                                 for (let [i, el] of clickCounter.entries()) {
                                     el.replaceChildren();
@@ -877,7 +869,9 @@ function handleTasksClick(event) {
 
     event.target.classList.add('active');
     document.getElementById(target).classList.add('active');
-    renderTasksList(tasks, target);
+
+    const storageUser = JSON.parse(localStorage.getItem('user'));
+    renderTasksList(storageUser.tasks, target);
 }
 
 async function getReferralsList() {
@@ -973,7 +967,12 @@ function handleMenuClick(event) {
 
             tasksNavigationItems[0].classList.add('active');
             taskListContents[0].classList.add('active');
-            renderTasksList(tasks, 'special-tasks');
+
+            storageUser.tasks = tasks;
+
+            localStorage.setItem('user', JSON.stringify(storageUser));
+
+            renderTasksList(storageUser.tasks, 'special-tasks');
 
             hideLoader();
             contents.item(1).classList.add('active');
