@@ -10,6 +10,10 @@ html, body {
     width: 100vw;
     overflow: hidden;
     background-color: #000000;
+    background-image: url('./assets/images/home_background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .loader {
@@ -40,10 +44,6 @@ html, body {
     justify-content: space-between;
     height: 100vh;
     width: 100vw;
-    background-image: url('./assets/images/home_background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
 }
 
 .coin-icon {
@@ -383,6 +383,23 @@ html, body {
 
 .menu-icon {
     width: 23%;
+}
+
+.mobile-caution {
+    display: none;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 300px 200px rgba(0,0,0,0.25);
+}
+
+.mobile-caution h1 {
+    width: 80%;
+    font-size: 36px;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
 }
 
 @keyframes floatUp {

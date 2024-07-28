@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = 'http://165.227.128.126:5000';
 
 const loader = document.querySelector('.loader');
 const menuWrapper = document.querySelector('.menu');
@@ -7,6 +7,7 @@ const coinIcon = document.createElement('img');
 coinIcon.src = './assets/images/bullcoin_icon.png';
 
 const mainContainer = document.getElementById('main-container');
+const mobileCaution = document.querySelector('.mobile-caution');
 
 const energyBar = document.getElementById('progress-bar');
 const energyBarText = document.getElementById('progress-text');
@@ -39,6 +40,11 @@ let currentEnergy;
 let clickCount;
 let tapBotInterval;
 let onlineTapBotCounter;
+
+function isMobileDevice() {
+    const U = Telegram.WebApp.platform;
+    return U === "android" || U === "ios";
+}
 
 function initData(storageUser) {
     clickCount = storageUser.points;
@@ -123,44 +129,50 @@ function initTg() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    async function fetchUserData() {
-        try {
-            showLoader();
-            initTg();
-            localStorage.removeItem('user');
-            const params = new URLSearchParams(Telegram.WebApp.initData);
-            const userData = JSON.parse(params.get('user'));
-            telegramId = userData.id;
-            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            // const response = await fetch(BACKEND_URL + `/user/550066310`);
-            const data = await response.json();
+    showLoader();
+    initTg();
 
-            localStorage.setItem('user', JSON.stringify(data));
+    const params = new URLSearchParams(Telegram.WebApp.initData);
+    const userData = JSON.parse(params.get('user'));
 
-            hideLoader();
-            contents.item(0).classList.add('active');
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-        }
-    }
-
-    let storageUser = JSON.parse(localStorage.getItem('user'));
-
-    if (!storageUser) {
-        showLoader();
-        fetchUserData().then(() => {
-            storageUser = JSON.parse(localStorage.getItem('user'));
-            initData(storageUser);
-            hideLoader();
-            contents.item(0).classList.add('active');
-        });
+    if (!isMobileDevice()) {
+        hideLoader();
+        mainContainer.style.display = 'none';
+        mobileCaution.style.display = 'flex';
     } else {
-        showLoader();
-        initData(storageUser);
-        setTimeout(() => {
-            hideLoader();
-            contents.item(0).classList.add('active');
-        }, 2000);
+        async function fetchUserData() {
+            try {
+                telegramId = userData.id;
+                const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+                const data = await response.json();
+
+                localStorage.setItem('user', JSON.stringify(data));
+
+                hideLoader();
+                contents.item(0).classList.add('active');
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
+        let storageUser = JSON.parse(localStorage.getItem('user'));
+
+        if (!storageUser) {
+            showLoader();
+            fetchUserData().then(() => {
+                storageUser = JSON.parse(localStorage.getItem('user'));
+                initData(storageUser);
+                hideLoader();
+                contents.item(0).classList.add('active');
+            });
+        } else {
+            showLoader();
+            initData(storageUser);
+            setTimeout(() => {
+                hideLoader();
+                contents.item(0).classList.add('active');
+            }, 2000);
+        }
     }
 });
 
