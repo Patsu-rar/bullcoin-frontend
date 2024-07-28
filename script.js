@@ -135,45 +135,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(Telegram.WebApp.initData);
     const userData = JSON.parse(params.get('user'));
 
-    if (!isMobileDevice()) {
-        hideLoader();
-        mainContainer.style.display = 'none';
-        mobileCaution.style.display = 'flex';
-    } else {
-        async function fetchUserData() {
-            try {
-                telegramId = userData.id;
-                const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-                const data = await response.json();
+    // if (!isMobileDevice()) {
+    //     hideLoader();
+    //     mainContainer.style.display = 'none';
+    //     mobileCaution.style.display = 'flex';
+    // } else {
+    async function fetchUserData() {
+        try {
+            telegramId = userData.id;
+            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+            const data = await response.json();
 
-                localStorage.setItem('user', JSON.stringify(data));
+            localStorage.setItem('user', JSON.stringify(data));
 
-                hideLoader();
-                contents.item(0).classList.add('active');
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        }
-
-        let storageUser = JSON.parse(localStorage.getItem('user'));
-
-        if (!storageUser) {
-            showLoader();
-            fetchUserData().then(() => {
-                storageUser = JSON.parse(localStorage.getItem('user'));
-                initData(storageUser);
-                hideLoader();
-                contents.item(0).classList.add('active');
-            });
-        } else {
-            showLoader();
-            initData(storageUser);
-            setTimeout(() => {
-                hideLoader();
-                contents.item(0).classList.add('active');
-            }, 2000);
+            hideLoader();
+            contents.item(0).classList.add('active');
+        } catch (error) {
+            console.error('Error fetching user data:', error);
         }
     }
+
+    let storageUser = JSON.parse(localStorage.getItem('user'));
+
+    if (!storageUser) {
+        showLoader();
+        fetchUserData().then(() => {
+            storageUser = JSON.parse(localStorage.getItem('user'));
+            initData(storageUser);
+            hideLoader();
+            contents.item(0).classList.add('active');
+        });
+    } else {
+        showLoader();
+        initData(storageUser);
+        setTimeout(() => {
+            hideLoader();
+            contents.item(0).classList.add('active');
+        }, 2000);
+    }
+    // }
 });
 
 async function upgradeBooster(boosterName) {
