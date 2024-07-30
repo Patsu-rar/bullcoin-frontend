@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://165.227.128.126:5000';
+const BACKEND_URL = 'https://bullcoin.fun:4050';
 
 const loader = document.querySelector('.loader');
 const menuWrapper = document.querySelector('.menu');
