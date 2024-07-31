@@ -44,6 +44,17 @@ let tapBotInterval;
 let onlineTapBotCounter;
 let onlineEnergyCounter;
 
+setInterval(() => {
+    let storageUser = JSON.parse(localStorage.getItem('user'));
+    if (storageUser) {
+        const updateBody = {
+            points: storageUser.points,
+            current_energy: storageUser.current_energy
+        }
+        updateUser(updateBody);
+    }
+}, 15000);
+
 function isMobileDevice() {
     const U = Telegram.WebApp.platform;
     return U === "android" || U === "ios";
@@ -169,14 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showLoader();
 
     let storageUser = JSON.parse(localStorage.getItem('user'));
-
-    setInterval(() => {
-        const updateBody = {
-            points: storageUser.points,
-            current_energy: storageUser.current_energy
-        }
-        updateUser(updateBody);
-    }, 15000);
 
     if (!isMobileDevice()) {
         hideLoader();
