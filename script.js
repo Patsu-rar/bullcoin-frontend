@@ -6,6 +6,8 @@ const menuWrapper = document.querySelector('.menu');
 const coinIcon = document.createElement('img');
 coinIcon.src = './assets/images/bullcoin_icon.png';
 
+const body = document.querySelector('body');
+
 const mainContainer = document.getElementById('main-container');
 const mobileCaution = document.querySelector('.mobile-caution');
 
@@ -40,6 +42,7 @@ let currentEnergy;
 let clickCount;
 let tapBotInterval;
 let onlineTapBotCounter;
+let onlineEnergyCounter;
 
 function isMobileDevice() {
     const U = Telegram.WebApp.platform;
@@ -58,12 +61,23 @@ function initData(storageUser) {
     if (!loginTime) {
         localStorage.setItem('loginTime', Date.now());
     } else {
-        currentEnergy += Math.floor((Date.now() - loginTime) / 1000) * storageUser.boosters[2].level;
+        onlineEnergyCounter = +localStorage.getItem('onlineEnergyCounter');
+
+        if (!onlineEnergyCounter) {
+            onlineEnergyCounter = 0;
+        }
+
+        currentEnergy += Math.floor(((Date.now() - loginTime) / 1000) - onlineEnergyCounter) * storageUser.boosters[2].level;
+
+        onlineEnergyCounter = 0;
+        localStorage.setItem('onlineEnergyCounter', '0');
         if (currentEnergy >= maxEnergy) {
-            onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
-            let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
-            clickCount += Math.abs((timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter);
-            storageUser.points = clickCount;
+            if (storageUser.boosters[3].bought === true) {
+                onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
+                let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
+                clickCount += Math.abs((timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter);
+                storageUser.points = clickCount;
+            }
 
             currentEnergy = maxEnergy;
             storageUser.current_energy = currentEnergy;
@@ -128,52 +142,90 @@ function initTg() {
     }
 }
 
+async function updateUser(updateData) {
+    try {
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        if (!response.ok) {
+            console.error('Error upgrading a booster:', response.statusText);
+        }
+
+        const data = await response.json();
+        console.log('Success:', data);
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     showLoader();
-    initTg();
-
-    const params = new URLSearchParams(Telegram.WebApp.initData);
-    const userData = JSON.parse(params.get('user'));
-
-    // if (!isMobileDevice()) {
-    //     hideLoader();
-    //     mainContainer.style.display = 'none';
-    //     mobileCaution.style.display = 'flex';
-    // } else {
-    async function fetchUserData() {
-        try {
-            telegramId = userData.id;
-            const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-            const data = await response.json();
-
-            localStorage.setItem('user', JSON.stringify(data));
-
-            hideLoader();
-            contents.item(0).classList.add('active');
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-        }
-    }
 
     let storageUser = JSON.parse(localStorage.getItem('user'));
 
-    if (!storageUser) {
-        showLoader();
+    setInterval(() => {
+        const updateBody = {
+            points: storageUser.points,
+            current_energy: storageUser.current_energy
+        }
+        updateUser(updateBody);
+    }, 15000);
+
+    if (!isMobileDevice()) {
+        hideLoader();
+        mainContainer.style.display = 'none';
+        mobileCaution.style.display = 'flex';
+    } else {
+        async function fetchUserData() {
+            try {
+                const params = new URLSearchParams(Telegram.WebApp.initData);
+                const userData = JSON.parse(params.get('user'));
+                telegramId = userData.id;
+                const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+
+                const data = await response.json();
+
+                if (storageUser) {
+                    data.points = storageUser.points;
+                    data.current_energy = storageUser.current_energy;
+
+
+                    if (data.referrals_given.length > storageUser.referrals_given.length) {
+                        storageUser.points += 5000 * (data.referrals_given.length - storageUser.referrals_given.length);
+                        clickCount = storageUser.points;
+                        storageUser.invited_count = data.referrals_given.length;
+                        storageUser.referrals_given.push({
+                            'points_awarded': 5000,
+                            'referee_id': data.referrals_given[data.referrals_given.length - 1].referee_id,
+                            'referral_id': data.referrals_given[data.referrals_given.length - 1].referral_id
+                        });
+                    }
+                }
+
+                localStorage.setItem('user', JSON.stringify(data));
+
+                hideLoader();
+                contents.item(0).classList.add('active');
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
         fetchUserData().then(() => {
+            initTg();
             storageUser = JSON.parse(localStorage.getItem('user'));
             initData(storageUser);
             hideLoader();
             contents.item(0).classList.add('active');
         });
-    } else {
-        showLoader();
-        initData(storageUser);
-        setTimeout(() => {
-            hideLoader();
-            contents.item(0).classList.add('active');
-        }, 2000);
     }
-    // }
 });
 
 async function upgradeBooster(boosterName) {
@@ -242,9 +294,9 @@ function renderBoostersList(boosters) {
             const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
             if (referralsList) {
-                refContentCounter.textContent = `${referralsList.length} Referrals`
+                refContentCounter.textContent = `${referralsList.length} Friends`
             } else {
-                refContentCounter.textContent = '0 Referrals';
+                refContentCounter.textContent = '0 Friends';
             }
             adjustFontSize(refContentCounter);
         }
@@ -346,9 +398,9 @@ function renderBoostersList(boosters) {
                                 const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
                                 if (referralsList) {
-                                    refContentCounter.textContent = `${referralsList.length} Referrals`
+                                    refContentCounter.textContent = `${referralsList.length} Friends`
                                 } else {
-                                    refContentCounter.textContent = '0 Referrals';
+                                    refContentCounter.textContent = '0 Friends';
                                 }
                                 adjustFontSize(refContentCounter);
                             }
@@ -442,9 +494,9 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                                 const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
                                 if (referralsList) {
-                                    refContentCounter.textContent = `${referralsList.length} Referrals`
+                                    refContentCounter.textContent = `${referralsList.length} Friends`
                                 } else {
-                                    refContentCounter.textContent = '0 Referrals';
+                                    refContentCounter.textContent = '0 Friends';
                                 }
                                 adjustFontSize(refContentCounter);
                             }
@@ -561,33 +613,37 @@ function decreaseEnergy(event) {
     let storageUser = JSON.parse(localStorage.getItem('user'));
 
     for (let touch of event.changedTouches) {
-        if (currentEnergy > 0) {
+        if (currentEnergy >= 1) {
             const isTappingGuruActive = JSON.parse(localStorage.getItem('isTappingGuruActive'));
             let calculatedScore = storageUser.boosters[0].level;
-            if (!isTappingGuruActive) {
-                currentEnergy -= calculatedScore;
-            } else {
-                calculatedScore *= 5;
+
+            if ((currentEnergy - calculatedScore) >= 0) {
+                if (!isTappingGuruActive) {
+                    currentEnergy -= calculatedScore;
+                } else {
+                    calculatedScore *= 5;
+                }
+
+                clickCount += calculatedScore;
+                showFloatingNumber(touch, calculatedScore);
+
+                const rect = coin.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                const rotateX = ((y / rect.height) - 0.5) * 20;
+                const rotateY = ((x / rect.width) - 0.5) * (-20);
+
+                coin.style.transform = `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                setTimeout(() => {
+                    coin.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg)';
+                }, 100);
+
+                storageUser.points = clickCount;
+                storageUser.current_energy = currentEnergy;
+
+                localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
+                localStorage.setItem('lastClickTime', `${new Date().toUTCString()}`);
             }
-            clickCount += calculatedScore;
-            showFloatingNumber(touch, calculatedScore);
-
-            const rect = coin.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            const rotateX = ((y / rect.height) - 0.5) * 20;
-            const rotateY = ((x / rect.width) - 0.5) * (-20);
-
-            coin.style.transform = `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            setTimeout(() => {
-                coin.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg)';
-            }, 100);
-
-            storageUser.points = clickCount;
-            storageUser.current_energy = currentEnergy;
-
-            localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
-            localStorage.setItem('lastClickTime', `${new Date().toUTCString()}`);
         }
     }
     coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.points)}.png`;
@@ -616,6 +672,7 @@ function recoverEnergy() {
         currentEnergy = maxEnergy;
     }
     storageUser.current_energy = currentEnergy;
+    localStorage.setItem('onlineEnergyCounter', `${onlineEnergyCounter += 1}`)
     localStorage.setItem('user', JSON.stringify(storageUser));
     updateEnergy();
 }
@@ -726,9 +783,9 @@ function renderTasksList(tasks, target) {
                                 const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
                                 if (referralsList) {
-                                    refContentCounter.textContent = `${referralsList.length} Referrals`
+                                    refContentCounter.textContent = `${referralsList.length} Friends`
                                 } else {
-                                    refContentCounter.textContent = '0 Referrals';
+                                    refContentCounter.textContent = '0 Friends';
                                 }
                                 adjustFontSize(refContentCounter);
                             }
@@ -819,9 +876,9 @@ function renderTasksList(tasks, target) {
                                         const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
                                         if (referralsList) {
-                                            refContentCounter.textContent = `${referralsList.length} Referrals`
+                                            refContentCounter.textContent = `${referralsList.length} Friends`
                                         } else {
-                                            refContentCounter.textContent = '0 Referrals';
+                                            refContentCounter.textContent = '0 Friends';
                                         }
                                         adjustFontSize(refContentCounter);
                                     }
@@ -957,11 +1014,11 @@ function handleMenuClick(event) {
     });
 
     if (target === 'home-content') {
-        mainContainer.style.backgroundImage = "url('./assets/images/home_background.png')";
-        mainContainer.style.boxShadow = "none";
+        body.style.backgroundImage = "url('./assets/images/home_background.png')";
+        body.style.boxShadow = "none";
     } else {
-        mainContainer.style.backgroundImage = "url('./assets/images/secondary_background.png')";
-        mainContainer.style.boxShadow = "inset 0 0 0 1000px rgba(0,0,0,0.2)";
+        body.style.backgroundImage = "url('./assets/images/secondary_background.png')";
+        body.style.boxShadow = "inset 0 0 0 1000px rgba(0,0,0,0.2)";
     }
 
     refList.replaceChildren();
@@ -1023,7 +1080,7 @@ function handleMenuClick(event) {
 
                 refList.style.display = 'flex';
                 refEmptyMessage.style.display = 'none';
-                refContentCounter.textContent = `${referralsList.length} Referrals`
+                refContentCounter.textContent = `${referralsList.length} Friends`
                 adjustFontSize(refContentCounter);
 
                 for (let user of referralsList) {
@@ -1044,7 +1101,7 @@ function handleMenuClick(event) {
             } else {
                 refList.style.display = 'none';
                 refEmptyMessage.style.display = 'flex';
-                refContentCounter.textContent = '0 Referrals';
+                refContentCounter.textContent = '0 Friends';
             }
 
             hideLoader();

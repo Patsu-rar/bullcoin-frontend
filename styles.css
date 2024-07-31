@@ -5,7 +5,7 @@
 }
 
 html, body {
-    font-family: "Brush Script MT", sans-serif; /* Поміняти шрифт */
+    font-family: "Brush Script MT", sans-serif;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
@@ -110,6 +110,14 @@ html, body {
 .content.active {
     visibility: visible;
     position: relative;
+    height: 80vh;
+}
+
+.home-coin-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10vh;
 }
 
 .tasks-wrapper {
