@@ -123,17 +123,16 @@ function initData() {
                 storageUser.boosters[3].lastUpdated = Date.now();
 
                 const energyPerSecond = storageUser.boosters[2].level;
-                const maxEnergyTimeInSeconds = Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
-
-                const validWorkTimeInSeconds = Math.min(maxEnergyTimeInSeconds, elapsedTime / 1000, 43200);
+                const maxEnergyTimeInSeconds = (elapsedTime / 1000) +
+                    Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
 
                 const pointsPerClick = storageUser.boosters[0].level;
 
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
 
-                const earnedPoints = (validWorkTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
+                const earnedPoints = (maxEnergyTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
 
-                console.log(validWorkTimeInSeconds);
+                console.log(maxEnergyTimeInSeconds);
                 console.log(earnedPoints);
 
                 clickCount += Math.max(0, earnedPoints);
