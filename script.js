@@ -126,9 +126,14 @@ function initData() {
                 const maxEnergyTimeInSeconds = (elapsedTime / 1000) +
                     Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
 
+                console.log(elapsedTime / 1000);
+                console.log(Math.floor((currentEnergy - maxEnergy) / energyPerSecond));
+
                 const pointsPerClick = storageUser.boosters[0].level;
 
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
+
+                console.log(onlineTapBotCounter, pointsPerClick);
 
                 const earnedPoints = (maxEnergyTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
 
