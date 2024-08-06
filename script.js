@@ -60,10 +60,26 @@ function isMobileDevice() {
     return U === "android" || U === "ios";
 }
 
-function initData(storageUser) {
+async function resetDailyBoosters() {
+    try {
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/reset_daily_boosters`, {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+    } catch (error) {
+        console.error('Error resetting the boosters:', error);
+    }
+}
+
+function initData() {
+    let storageUser = JSON.parse(localStorage.getItem('user'));
+
     clickCount = storageUser.points;
 
-    const loginTime = localStorage.getItem('loginTime');
+    const loginTime = +localStorage.getItem('loginTime');
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
 
@@ -72,6 +88,15 @@ function initData(storageUser) {
     if (!loginTime) {
         localStorage.setItem('loginTime', Date.now());
     } else {
+        const previousLoginDay = new Date(+loginTime).getDate();
+        const currentDay = new Date().getDate();
+
+        if (currentDay !== previousLoginDay) {
+            storageUser.daily_boosters_usage['Full Tank'] = 3;
+            storageUser.daily_boosters_usage['Tapping Guru'] = 3;
+            resetDailyBoosters();
+        }
+
         onlineEnergyCounter = +localStorage.getItem('onlineEnergyCounter');
 
         if (!onlineEnergyCounter) {
@@ -84,10 +109,24 @@ function initData(storageUser) {
         localStorage.setItem('onlineEnergyCounter', '0');
         if (currentEnergy >= maxEnergy) {
             if (storageUser.boosters[3].bought === true) {
+                const elapsedTime = Math.min(Date.now() - storageUser.boosters[3].lastUpdated,
+                    12 * 60 * 60 * 1000);
+
+                const energyPerSecond = storageUser.boosters[2].level;
+                const maxEnergyTimeInSeconds = Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
+
+                const validWorkTimeInSeconds = Math.min(maxEnergyTimeInSeconds, elapsedTime / 1000, 43200);
+
+                const pointsPerClick = storageUser.boosters[0].level;
+
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
-                let timeDifference = Math.floor((currentEnergy - maxEnergy) / storageUser.boosters[2].level);
-                clickCount += Math.abs((timeDifference * storageUser.boosters[0].level) - onlineTapBotCounter);
+
+                const earnedPoints = (validWorkTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
+                clickCount += Math.max(0, earnedPoints); // Ensure no negative points
                 storageUser.points = clickCount;
+
+                localStorage.setItem('tapBotLastUpdated', `${Date.now()}`);
+                localStorage.setItem('onlineTapBotCounter', '0');
             }
 
             currentEnergy = maxEnergy;
@@ -179,26 +218,36 @@ async function updateUser(updateData) {
 document.addEventListener('DOMContentLoaded', () => {
     showLoader();
 
-    let storageUser = JSON.parse(localStorage.getItem('user'));
-
-    if (!isMobileDevice()) {
-        hideLoader();
-        mainContainer.style.display = 'none';
-        mobileCaution.style.display = 'flex';
-    } else {
+    // if (!isMobileDevice()) {
+    //     hideLoader();
+    //     mainContainer.style.display = 'none';
+    //     mobileCaution.style.display = 'flex';
+    // } else {
         async function fetchUserData() {
             try {
-                const params = new URLSearchParams(Telegram.WebApp.initData);
-                const userData = JSON.parse(params.get('user'));
-                telegramId = userData.id;
-                const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+                let storageUser = JSON.parse(localStorage.getItem('user'));
+
+                // const params = new URLSearchParams(Telegram.WebApp.initData);
+                // const userData = JSON.parse(params.get('user'));
+                // telegramId = userData.id;
+                // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+                const response = await fetch(BACKEND_URL + `/user/550066310`);
 
                 const data = await response.json();
 
-                if (storageUser) {
-                    data.points = storageUser.points;
-                    data.current_energy = storageUser.current_energy;
+                if (storageUser && storageUser.telegram_id !== data.telegram_id) {
+                    localStorage.removeItem('user');
+                    storageUser = undefined;
+                }
 
+                if (storageUser) {
+                    if (data.points < storageUser.points) {
+                        data.points = storageUser.points;
+                    }
+
+                    if (data.current_energy < storageUser.current_energy) {
+                        data.current_energy = storageUser.current_energy;
+                    }
 
                     if (data.referrals_given.length > storageUser.referrals_given.length) {
                         storageUser.points += 5000 * (data.referrals_given.length - storageUser.referrals_given.length);
@@ -221,14 +270,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+
+
         fetchUserData().then(() => {
+            let storageUser = JSON.parse(localStorage.getItem('user'));
             initTg();
-            storageUser = JSON.parse(localStorage.getItem('user'));
             initData(storageUser);
             hideLoader();
             contents.item(0).classList.add('active');
         });
-    }
+    // }
 });
 
 async function upgradeBooster(boosterName) {
@@ -344,7 +395,8 @@ function renderBoostersList(boosters) {
             upgradeBoosterIcon.addEventListener('click', () =>
                 showConfirmationPopup(
                     'Buy Tap Bot',
-                    'Are you sure you want to buy Tap Bot?',
+                    'Are you sure you want to buy Tap Bot? You have to buy it only once. ' +
+                    'It will click whenever the energy is full maximum for 12 hours.',
                     boost.title,
                     boost.level,
                     boost.price));
@@ -475,11 +527,11 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                         contents.item(2).classList.add('active');
                     }
                 } else if (boosterName === 'Tap Bot') {
-                    if (storageUser.points >= 200000) {
+                    if (storageUser.points >= 1000000) {
                         storageUser.boosters[3].bought = true;
 
-                        storageUser.points -= 200000;
-                        clickCount -= 200000;
+                        storageUser.points -= 1000000;
+                        clickCount -= 1000000;
 
                         for (let [i, el] of clickCounter.entries()) {
                             el.replaceChildren();
@@ -505,9 +557,23 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                             }
                         }
 
+                        localStorage.setItem('tapBotLastUpdated', `${Date.now()}`);
+
+                        const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
+                        localStorage.setItem('tapBotEndTime', `${Date.now() + twelveHoursInMilliseconds}`);
+
                         localStorage.setItem('user', JSON.stringify(storageUser));
 
                         renderBoostersList(storageUser.boosters);
+                    } else {
+                        Telegram.WebApp.showPopup(
+                            {
+                                title: 'Alert',
+                                message: 'Sorry, you don\'t have enough points.',
+                                buttons: [
+                                    {id: 'close', text: 'Close', type: 'close'},
+                                ]
+                            }, () => {});
                     }
 
                     hideLoader();
@@ -515,8 +581,6 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                 } else {
                     const booster = storageUser.boosters.find(booster => booster.title === boosterName);
                     if (storageUser.points > booster.price) {
-                        showLoader();
-
                         if (boosterName === 'Energy Limit') {
                             storageUser.max_energy += 500;
                             maxEnergy = storageUser.max_energy;
@@ -535,6 +599,15 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                             hideLoader();
                             contents.item(2).classList.add('active');
                         });
+                    } else {
+                        Telegram.WebApp.showPopup(
+                            {
+                                title: 'Alert',
+                                message: 'Sorry, you don\'t have enough points.',
+                                buttons: [
+                                    {id: 'close', text: 'Close', type: 'close'},
+                                ]
+                            }, () => {});
                     }
 
                     hideLoader();
