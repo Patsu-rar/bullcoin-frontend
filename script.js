@@ -111,12 +111,6 @@ function initData() {
 
         currentEnergy += Math.floor(((Date.now() - loginTime) / 1000) - onlineEnergyCounter) * storageUser.boosters[2].level;
 
-        console.log(currentEnergy);
-        console.log(Date.now(), loginTime);
-        console.log(Date.now() - loginTime);
-        console.log(onlineEnergyCounter);
-        console.log('#################');
-
         onlineEnergyCounter = 0;
         localStorage.setItem('onlineEnergyCounter', '0');
         if (currentEnergy >= maxEnergy) {
@@ -124,28 +118,17 @@ function initData() {
                 const elapsedTime = Math.min(Date.now() - storageUser.boosters[3].lastUpdated,
                     12 * 60 * 60 * 1000);
 
-                console.log(Date.now(), storageUser.boosters[3].lastUpdated);
-
                 storageUser.boosters[3].lastUpdated = Date.now();
 
                 const energyPerSecond = storageUser.boosters[2].level;
                 const maxEnergyTimeInSeconds = Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
 
                 const validWorkTimeInSeconds = Math.min(maxEnergyTimeInSeconds, elapsedTime / 1000);
-                console.log(elapsedTime / 1000);
-                console.log(Math.floor((currentEnergy - maxEnergy) / energyPerSecond));
-
                 const pointsPerClick = storageUser.boosters[0].level;
 
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
 
-                console.log(onlineTapBotCounter, pointsPerClick);
-
-                const earnedPoints = validWorkTimeInSeconds * pointsPerClick;
-
-                console.log(maxEnergyTimeInSeconds);
-                console.log(validWorkTimeInSeconds);
-                console.log(earnedPoints);
+                const earnedPoints = Math.floor(validWorkTimeInSeconds * pointsPerClick);
 
                 clickCount += Math.max(0, earnedPoints);
                 storageUser.points = clickCount;
@@ -240,11 +223,11 @@ async function updateUser(updateData) {
 document.addEventListener('DOMContentLoaded', () => {
     showLoader();
 
-    // if (!isMobileDevice()) {
-    //     hideLoader();
-    //     mainContainer.style.display = 'none';
-    //     mobileCaution.style.display = 'flex';
-    // } else {
+    if (!isMobileDevice()) {
+        hideLoader();
+        mainContainer.style.display = 'none';
+        mobileCaution.style.display = 'flex';
+    } else {
         async function fetchUserData() {
             try {
                 let storageUser = JSON.parse(localStorage.getItem('user'));
@@ -253,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userData = JSON.parse(params.get('user'));
                 const telegramId = userData.id;
                 const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-                // const response = await fetch(BACKEND_URL + `/user/550066310`);
 
                 const data = await response.json();
 
@@ -301,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoader();
             contents.item(0).classList.add('active');
         });
-    // }
+    }
 });
 
 async function upgradeBooster(boosterName) {
