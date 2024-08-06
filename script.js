@@ -295,7 +295,8 @@ async function upgradeBooster(boosterName) {
             method: 'POST',
             body: JSON.stringify({
                 booster_name: boosterName,
-                current_score: storageUser.points
+                current_score: storageUser.points,
+                lastUpdated: storageUser.boosters[3].lastUpdated
             }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
@@ -568,6 +569,8 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                         localStorage.setItem('user', JSON.stringify(storageUser));
 
                         renderBoostersList(storageUser.boosters);
+
+                        upgradeBooster(boosterName);
                     } else {
                         Telegram.WebApp.showPopup(
                             {
