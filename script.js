@@ -118,6 +118,8 @@ function initData() {
                 const elapsedTime = Math.min(Date.now() - storageUser.boosters[3].lastUpdated,
                     12 * 60 * 60 * 1000);
 
+                console.log(elapsedTime);
+
                 const energyPerSecond = storageUser.boosters[2].level;
                 const maxEnergyTimeInSeconds = Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
 
@@ -128,11 +130,12 @@ function initData() {
                 onlineTapBotCounter = +localStorage.getItem('onlineTapBotCounter');
 
                 const earnedPoints = (validWorkTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
-                clickCount += Math.max(0, earnedPoints); // Ensure no negative points
-                storageUser.points = clickCount;
 
-                localStorage.setItem('tapBotLastUpdated', `${Date.now()}`);
-                localStorage.setItem('onlineTapBotCounter', '0');
+                console.log(validWorkTimeInSeconds);
+                console.log(earnedPoints);
+
+                clickCount += Math.max(0, earnedPoints);
+                storageUser.points = clickCount;
             }
 
             currentEnergy = maxEnergy;
