@@ -118,7 +118,9 @@ function initData() {
                 const elapsedTime = Math.min(Date.now() - storageUser.boosters[3].lastUpdated,
                     12 * 60 * 60 * 1000);
 
-                console.log(elapsedTime);
+                console.log(Date.now(), storageUser.boosters[3].lastUpdated);
+
+                storageUser.boosters[3].lastUpdated = Date.now();
 
                 const energyPerSecond = storageUser.boosters[2].level;
                 const maxEnergyTimeInSeconds = Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
