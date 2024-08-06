@@ -141,7 +141,7 @@ function initData() {
 
                 console.log(onlineTapBotCounter, pointsPerClick);
 
-                const earnedPoints = (validWorkTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
+                const earnedPoints = validWorkTimeInSeconds * pointsPerClick;
 
                 console.log(maxEnergyTimeInSeconds);
                 console.log(validWorkTimeInSeconds);
