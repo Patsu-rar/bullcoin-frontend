@@ -49,7 +49,13 @@ setInterval(() => {
     if (storageUser) {
         const updateBody = {
             points: storageUser.points,
-            current_energy: storageUser.current_energy
+            current_energy: storageUser.current_energy,
+            boosters: [
+                {
+                    "title": "Tap Bot",
+                    "lastUpdated": storageUser.boosters[3].lastUpdated
+                }
+            ],
         }
         updateUser(updateBody);
     }
@@ -434,6 +440,7 @@ function renderBoostersList(boosters) {
                         clickCount += storageUser.boosters[0].level;
                         storageUser.points = clickCount;
                         onlineTapBotCounter += storageUser.boosters[0].level;
+                        storageUser.boosters[3].lastUpdated = Date.now();
 
                         localStorage.setItem('onlineTapBotCounter', onlineTapBotCounter);
 
@@ -529,6 +536,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                 } else if (boosterName === 'Tap Bot') {
                     if (storageUser.points >= 1000000) {
                         storageUser.boosters[3].bought = true;
+                        storageUser.boosters[3].lastUpdated = Date.now();
 
                         storageUser.points -= 1000000;
                         clickCount -= 1000000;
@@ -556,11 +564,6 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                                 adjustFontSize(refContentCounter);
                             }
                         }
-
-                        localStorage.setItem('tapBotLastUpdated', `${Date.now()}`);
-
-                        const twelveHoursInMilliseconds = 12 * 60 * 60 * 1000;
-                        localStorage.setItem('tapBotEndTime', `${Date.now() + twelveHoursInMilliseconds}`);
 
                         localStorage.setItem('user', JSON.stringify(storageUser));
 
