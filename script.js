@@ -92,9 +92,9 @@ function initData() {
     coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.points)}.png`;
 
     if (!loginTime) {
-        localStorage.setItem('loginTime', Date.now());
+        localStorage.setItem('loginTime', `${Date.now()}`);
     } else {
-        const previousLoginDay = new Date(+loginTime).getDate();
+        const previousLoginDay = new Date(loginTime).getDate();
         const currentDay = new Date().getDate();
 
         if (currentDay !== previousLoginDay) {
@@ -111,6 +111,12 @@ function initData() {
 
         currentEnergy += Math.floor(((Date.now() - loginTime) / 1000) - onlineEnergyCounter) * storageUser.boosters[2].level;
 
+        console.log(currentEnergy);
+        console.log(Date.now(), loginTime);
+        console.log(Date.now() - loginTime);
+        console.log(onlineEnergyCounter);
+        console.log('#################');
+
         onlineEnergyCounter = 0;
         localStorage.setItem('onlineEnergyCounter', '0');
         if (currentEnergy >= maxEnergy) {
@@ -123,9 +129,9 @@ function initData() {
                 storageUser.boosters[3].lastUpdated = Date.now();
 
                 const energyPerSecond = storageUser.boosters[2].level;
-                const maxEnergyTimeInSeconds = (elapsedTime / 1000) +
-                    Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
+                const maxEnergyTimeInSeconds = Math.floor((currentEnergy - maxEnergy) / energyPerSecond);
 
+                const validWorkTimeInSeconds = Math.min(maxEnergyTimeInSeconds, elapsedTime / 1000);
                 console.log(elapsedTime / 1000);
                 console.log(Math.floor((currentEnergy - maxEnergy) / energyPerSecond));
 
@@ -135,9 +141,10 @@ function initData() {
 
                 console.log(onlineTapBotCounter, pointsPerClick);
 
-                const earnedPoints = (maxEnergyTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
+                const earnedPoints = (validWorkTimeInSeconds * pointsPerClick) - onlineTapBotCounter;
 
                 console.log(maxEnergyTimeInSeconds);
+                console.log(validWorkTimeInSeconds);
                 console.log(earnedPoints);
 
                 clickCount += Math.max(0, earnedPoints);
@@ -151,7 +158,7 @@ function initData() {
             localStorage.setItem('onlineTapBotCounter', '0');
             onlineTapBotCounter = 0;
         }
-        localStorage.setItem('loginTime', Date.now());
+        localStorage.setItem('loginTime', `${Date.now()}`);
     }
 
     renderBoostersList(storageUser.boosters);
