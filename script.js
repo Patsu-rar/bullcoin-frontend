@@ -202,21 +202,27 @@ function initTg() {
             Telegram.WebApp.expand();
         }
 
-        let startY;
-
-        document.body.addEventListener('touchmove', function(event) {
-            event.preventDefault();
-        }, { passive: false });
+        let startY = 0;
 
         document.body.addEventListener('touchstart', function(event) {
             startY = event.touches[0].clientY;
-        }, { passive: false });
+        });
 
         document.body.addEventListener('touchmove', function(event) {
             const touch = event.touches[0];
             const swipeDistance = touch.clientY - startY;
 
-            if (swipeDistance > 0 || swipeDistance < 0) {
+            if (swipeDistance > 0) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.body.addEventListener('touchend', function(event) {
+            const touch = event.changedTouches[0];
+            const swipeDistance = touch.clientY - startY;
+
+            if (swipeDistance > 0) {
+                // Prevent further actions if swipe down is detected
                 event.preventDefault();
             }
         }, { passive: false });
