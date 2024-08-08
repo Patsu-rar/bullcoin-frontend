@@ -471,6 +471,7 @@ function renderBoostersList(boosters) {
         } else {
             if (boost.bought) {
                 upgradeBoosterIcon.style.display = 'none';
+                boostItemPrice.style.display = 'none;'
 
                 if (!tapBotInterval) {
                     tapBotInterval = setInterval(function () {
