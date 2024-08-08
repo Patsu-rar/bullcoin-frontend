@@ -200,7 +200,10 @@ function initTg() {
     if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
         if (!Telegram.WebApp.isExpanded) {
             Telegram.WebApp.expand();
+            Telegram.WebApp.viewportStableHeight = window.innerHeight;
         }
+        Telegram.WebApp.isClosingConfirmationEnabled = true;
+
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
         setTimeout(initTg, 100);
@@ -239,6 +242,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.height = window.innerHeight + overflow + "px"
     document.body.style.paddingBottom = `${overflow}px`
     window.scrollTo(0, overflow)
+
+    let ts;
+    const onTouchStart = (e) => {
+        ts = e.touches[0].clientY;
+    }
+
+    const onTouchMove = (e) => {
+        if (document.body) {
+            const scroll = document.body.scrollTop
+            const te = e.changedTouches[0].clientY
+            if (scroll <= 0 && ts < te) {
+                e.preventDefault()
+            }
+        } else {
+            e.preventDefault()
+        }
+    }
+    document.documentElement.addEventListener('touchstart', onTouchStart, { passive: false })
+    document.documentElement.addEventListener('touchmove', onTouchMove, { passive: false })
 
     // if (!isMobileDevice()) {
     //     hideLoader();
