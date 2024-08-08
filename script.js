@@ -201,6 +201,25 @@ function initTg() {
         if (!Telegram.WebApp.isExpanded) {
             Telegram.WebApp.expand();
         }
+
+        let startY;
+
+        document.body.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        document.body.addEventListener('touchstart', function(event) {
+            startY = event.touches[0].clientY;
+        }, { passive: false });
+
+        document.body.addEventListener('touchmove', function(event) {
+            const touch = event.touches[0];
+            const swipeDistance = touch.clientY - startY;
+
+            if (swipeDistance > 0 || swipeDistance < 0) {
+                event.preventDefault();
+            }
+        }, { passive: false });
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
         setTimeout(initTg, 100);
@@ -232,21 +251,6 @@ async function updateUser(updateData) {
 
 document.addEventListener('DOMContentLoaded', () => {
     showLoader();
-
-    let startY;
-
-    document.body.addEventListener('touchstart', function(event) {
-        startY = event.touches[0].clientY;
-    }, { passive: false });
-
-    document.body.addEventListener('touchmove', function(event) {
-        const touch = event.touches[0];
-        const swipeDistance = touch.clientY - startY;
-
-        if (swipeDistance > 0) {
-            event.preventDefault();
-        }
-    }, { passive: false });
 
     // if (!isMobileDevice()) {
     //     hideLoader();
