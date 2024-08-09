@@ -200,9 +200,9 @@ function initTg() {
     if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
         if (!Telegram.WebApp.isExpanded) {
             Telegram.WebApp.expand();
-            Telegram.WebApp.viewportStableHeight = window.innerHeight;
+            // Telegram.WebApp.viewportStableHeight = window.innerHeight;
         }
-        Telegram.WebApp.isClosingConfirmationEnabled = true;
+        // Telegram.WebApp.isClosingConfirmationEnabled = true;
 
     } else {
         console.log('Telegram WebApp is undefined, retrying…');
@@ -236,31 +236,40 @@ async function updateUser(updateData) {
 document.addEventListener('DOMContentLoaded', () => {
     showLoader();
 
-    const overflow = 100
-    document.body.style.overflowY = 'hidden'
-    document.body.style.marginTop = `${overflow}px`
-    document.body.style.height = window.innerHeight + overflow + "px"
-    document.body.style.paddingBottom = `${overflow}px`
-    window.scrollTo(0, overflow)
+    // const overflow = 100
+    // document.body.style.overflowY = 'hidden'
+    // document.body.style.marginTop = `${overflow}px`
+    // document.body.style.height = window.innerHeight + overflow + "px"
+    // document.body.style.paddingBottom = `${overflow}px`
+    // window.scrollTo(0, overflow)
 
     let ts;
     const onTouchStart = (e) => {
         ts = e.touches[0].clientY;
-    }
+    };
 
     const onTouchMove = (e) => {
-        if (document.body) {
-            const scroll = document.body.scrollTop
-            const te = e.changedTouches[0].clientY
-            if (scroll <= 0 && ts < te) {
-                e.preventDefault()
+        const te = e.changedTouches[0].clientY;
+        const scrollableElement = e.target.closest('.scrollable'); // Check if the target is within a scrollable element
+
+        if (scrollableElement) {
+            const scrollTop = scrollableElement.scrollTop;
+            const scrollHeight = scrollableElement.scrollHeight;
+            const clientHeight = scrollableElement.clientHeight;
+
+            // Allow scrolling inside the scrollable element
+            if ((scrollTop === 0 && ts < te) || (scrollTop + clientHeight === scrollHeight && ts > te)) {
+                e.preventDefault(); // Prevent bouncing at the edges
             }
+        } else if (document.body.scrollTop <= 0 && ts < te) {
+            e.preventDefault(); // Prevent the swipe down action if the app is at the top
         } else {
-            e.preventDefault()
+            e.preventDefault();
         }
-    }
-    document.documentElement.addEventListener('touchstart', onTouchStart, { passive: false })
-    document.documentElement.addEventListener('touchmove', onTouchMove, { passive: false })
+    };
+
+    document.documentElement.addEventListener('touchstart', onTouchStart, { passive: false });
+    document.documentElement.addEventListener('touchmove', onTouchMove, { passive: false });
 
     // if (!isMobileDevice()) {
     //     hideLoader();

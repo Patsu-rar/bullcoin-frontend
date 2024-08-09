@@ -149,7 +149,7 @@ html, body {
 
 .tasks-list {
     position: relative;
-    overflow-y: scroll;
+    /*overflow-y: scroll;*/
     height: 45vh;
     margin-top: 15px;
 }
@@ -246,7 +246,7 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 4%;
-    overflow-y: scroll;
+    /*overflow-y: scroll;*/
     height: 27vh;
 }
 
@@ -341,7 +341,7 @@ html, body {
 .ref-list {
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
+    /*overflow-y: scroll;*/
     height: 29vh;
     gap: 5px;
     margin-top: 15px;
@@ -408,6 +408,10 @@ html, body {
     color: #fff;
     font-weight: 700;
     text-align: center;
+}
+
+.scrollable {
+    overflow-y: scroll;
 }
 
 @keyframes floatUp {
