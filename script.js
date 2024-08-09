@@ -113,10 +113,10 @@ function initData() {
             onlineEnergyCounter = 0;
         }
 
-        currentEnergy += ((Math.floor(Date.now() - loginTime) / 1000) - onlineEnergyCounter) *
+        currentEnergy += (Math.floor((Date.now() - loginTime) / 1000) - onlineEnergyCounter) *
             storageUser.boosters[2].level;
 
-        console.log(Math.floor(Date.now() - loginTime) / 1000)
+        console.log(Math.floor((Date.now() - loginTime) / 1000))
         console.log(onlineEnergyCounter)
         console.log(storageUser.boosters[2].level)
 
@@ -691,9 +691,9 @@ function calculate_upgrade_price(boosterName, level) {
             return 'max';
         }
     } else {
-        if (2 <= level <= 8) {
+        if (2 <= level && level <= 8) {
             return 200 * (2 ** (level - 2));
-        } else if (9 <= level <= 13) {
+        } else if (9 <= level && level <= 13) {
             return 50000 * (2 ** (level - 9))
         } else {
             return 300000 + 100000 * (level - 13);
