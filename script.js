@@ -116,11 +116,6 @@ function initData() {
         currentEnergy += (Math.floor((Date.now() - loginTime) / 1000) - onlineEnergyCounter) *
             storageUser.boosters[2].level;
 
-        console.log(Math.floor((Date.now() - loginTime) / 1000))
-        console.log(onlineEnergyCounter)
-        console.log(storageUser.boosters[2].level)
-
-
         onlineEnergyCounter = 0;
         localStorage.setItem('onlineEnergyCounter', '0');
         if (currentEnergy >= maxEnergy) {
@@ -445,7 +440,7 @@ function renderBoostersList(boosters) {
         upgradeBoosterIcon.style.fontSize = '34px';
         upgradeBoosterIcon.style.fontWeight = '700';
 
-        if (boost.title === 'Tap Bot') {
+        if (boost.title === 'Tap Bot' && boost.price <= storageUser.points) {
             upgradeBoosterIcon.addEventListener('click', () =>
                 showConfirmationPopup(
                     'Buy Tap Bot',
@@ -455,13 +450,15 @@ function renderBoostersList(boosters) {
                     boost.level,
                     boost.price));
         } else {
-            upgradeBoosterIcon.addEventListener('click', () =>
-                showConfirmationPopup(
-                    'Upgrade booster',
-                    'Are you sure you want to upgrade this booster?',
-                    boost.title,
-                    boost.level,
-                    boost.price));
+            if (boost.price <= storageUser.points) {
+                upgradeBoosterIcon.addEventListener('click', () =>
+                    showConfirmationPopup(
+                        'Upgrade booster',
+                        'Are you sure you want to upgrade this booster?',
+                        boost.title,
+                        boost.level,
+                        boost.price));
+            }
         }
 
         leftSideWrapper.style.display = 'flex';
