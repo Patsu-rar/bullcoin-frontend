@@ -266,11 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.addEventListener('touchstart', onTouchStart, { passive: false });
     document.documentElement.addEventListener('touchmove', onTouchMove, { passive: false });
 
-    // if (!isMobileDevice()) {
-    //     hideLoader();
-    //     mainContainer.style.display = 'none';
-    //     mobileCaution.style.display = 'flex';
-    // } else {
+    if (!isMobileDevice()) {
+        hideLoader();
+        mainContainer.style.display = 'none';
+        mobileCaution.style.display = 'flex';
+    } else {
         async function fetchUserData() {
             try {
                 let storageUser = JSON.parse(localStorage.getItem('user'));
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoader();
             contents.item(0).classList.add('active');
         });
-    // }
+    }
 });
 
 async function upgradeBooster(boosterName) {
