@@ -159,7 +159,6 @@ function initData() {
 
     for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
-
         if (i !== 3) {
             const counterWrapper = document.createElement('div');
             const counterIcon = document.createElement('img');
@@ -170,10 +169,14 @@ function initData() {
 
             counterWrapper.style.display = 'flex';
             counterWrapper.style.gap = '5px';
+            counterWrapper.style.alignItems = 'center';
+            counterWrapper.style.fontSize = '45px';
+
             counterIcon.src = './assets/images/bullcoin_icon.png';
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
             userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+            userLevel.style.fontSize = '20px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
@@ -186,6 +189,8 @@ function initData() {
             } else {
                 refContentCounter.textContent = '0 Friends';
             }
+
+            refContentCounter.fontSize = '45px';
             adjustFontSize(refContentCounter);
         }
     }
@@ -419,10 +424,14 @@ function renderBoostersList(boosters) {
 
             counterWrapper.style.display = 'flex';
             counterWrapper.style.gap = '5px';
+            counterWrapper.style.alignItems = 'center';
+            counterWrapper.style.fontSize = '45px';
+
             counterIcon.src = './assets/images/bullcoin_icon.png';
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
             userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+            userLevel.style.fontSize = '20px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
@@ -435,6 +444,8 @@ function renderBoostersList(boosters) {
             } else {
                 refContentCounter.textContent = '0 Friends';
             }
+
+            refContentCounter.fontSize = '45px';
             adjustFontSize(refContentCounter);
         }
     }
@@ -530,7 +541,6 @@ function renderBoostersList(boosters) {
 
                             for (let [i, el] of clickCounter.entries()) {
                                 el.replaceChildren();
-
                                 if (i !== 3) {
                                     const counterWrapper = document.createElement('div');
                                     const counterIcon = document.createElement('img');
@@ -541,10 +551,14 @@ function renderBoostersList(boosters) {
 
                                     counterWrapper.style.display = 'flex';
                                     counterWrapper.style.gap = '5px';
+                                    counterWrapper.style.alignItems = 'center';
+                                    counterWrapper.style.fontSize = '45px';
+
                                     counterIcon.src = './assets/images/bullcoin_icon.png';
                                     counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                     userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+                                    userLevel.style.fontSize = '20px';
 
                                     counterWrapper.append(counterIcon, counterTitle);
                                     el.append(counterWrapper, userLevel);
@@ -557,6 +571,8 @@ function renderBoostersList(boosters) {
                                     } else {
                                         refContentCounter.textContent = '0 Friends';
                                     }
+
+                                    refContentCounter.fontSize = '45px';
                                     adjustFontSize(refContentCounter);
                                 }
                             }
@@ -637,7 +653,6 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
 
                         for (let [i, el] of clickCounter.entries()) {
                             el.replaceChildren();
-
                             if (i !== 3) {
                                 const counterWrapper = document.createElement('div');
                                 const counterIcon = document.createElement('img');
@@ -648,10 +663,14 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
 
                                 counterWrapper.style.display = 'flex';
                                 counterWrapper.style.gap = '5px';
+                                counterWrapper.style.alignItems = 'center';
+                                counterWrapper.style.fontSize = '45px';
+
                                 counterIcon.src = './assets/images/bullcoin_icon.png';
                                 counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                 userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+                                userLevel.style.fontSize = '20px';
 
                                 counterWrapper.append(counterIcon, counterTitle);
                                 el.append(counterWrapper, userLevel);
@@ -664,6 +683,8 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                                 } else {
                                     refContentCounter.textContent = '0 Friends';
                                 }
+
+                                refContentCounter.fontSize = '45px';
                                 adjustFontSize(refContentCounter);
                             }
                         }
@@ -774,6 +795,7 @@ function adjustFontSize(el) {
 
         if (el.id !== 'ref-counter' && imageWidth > 30) {
             imageWidth--;
+            console.log(imageWidth);
             el.getElementsByTagName('img')[0].style.width = `${imageWidth}px`;
             el.getElementsByTagName('img')[0].style.height = `${imageWidth}px`;
         }
@@ -838,7 +860,6 @@ function decreaseEnergy(event) {
     updateEnergy();
     for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
-
         if (i !== 3) {
             const counterWrapper = document.createElement('div');
             const counterIcon = document.createElement('img');
@@ -849,14 +870,14 @@ function decreaseEnergy(event) {
 
             counterWrapper.style.display = 'flex';
             counterWrapper.style.gap = '5px';
+            counterWrapper.style.alignItems = 'center';
+            counterWrapper.style.fontSize = '45px';
+
             counterIcon.src = './assets/images/bullcoin_icon.png';
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
-            if (getIconLevel(storageUser.general_points) === 9) {
-                userLevel.textContent = 'Max lvl';
-            } else {
-                userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-            }
+            userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+            userLevel.style.fontSize = '20px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
@@ -869,6 +890,8 @@ function decreaseEnergy(event) {
             } else {
                 refContentCounter.textContent = '0 Friends';
             }
+
+            refContentCounter.fontSize = '45px';
             adjustFontSize(refContentCounter);
         }
     }
@@ -982,7 +1005,6 @@ function renderTasksList(tasks, target) {
 
                         for (let [i, el] of clickCounter.entries()) {
                             el.replaceChildren();
-
                             if (i !== 3) {
                                 const counterWrapper = document.createElement('div');
                                 const counterIcon = document.createElement('img');
@@ -993,10 +1015,14 @@ function renderTasksList(tasks, target) {
 
                                 counterWrapper.style.display = 'flex';
                                 counterWrapper.style.gap = '5px';
+                                counterWrapper.style.alignItems = 'center';
+                                counterWrapper.style.fontSize = '45px';
+
                                 counterIcon.src = './assets/images/bullcoin_icon.png';
                                 counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                 userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+                                userLevel.style.fontSize = '20px';
 
                                 counterWrapper.append(counterIcon, counterTitle);
                                 el.append(counterWrapper, userLevel);
@@ -1009,6 +1035,8 @@ function renderTasksList(tasks, target) {
                                 } else {
                                     refContentCounter.textContent = '0 Friends';
                                 }
+
+                                refContentCounter.fontSize = '45px';
                                 adjustFontSize(refContentCounter);
                             }
                         }
@@ -1088,7 +1116,6 @@ function renderTasksList(tasks, target) {
 
                                 for (let [i, el] of clickCounter.entries()) {
                                     el.replaceChildren();
-
                                     if (i !== 3) {
                                         const counterWrapper = document.createElement('div');
                                         const counterIcon = document.createElement('img');
@@ -1099,10 +1126,14 @@ function renderTasksList(tasks, target) {
 
                                         counterWrapper.style.display = 'flex';
                                         counterWrapper.style.gap = '5px';
+                                        counterWrapper.style.alignItems = 'center';
+                                        counterWrapper.style.fontSize = '45px';
+
                                         counterIcon.src = './assets/images/bullcoin_icon.png';
                                         counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                         userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+                                        userLevel.style.fontSize = '20px';
 
                                         counterWrapper.append(counterIcon, counterTitle);
                                         el.append(counterWrapper, userLevel);
@@ -1115,6 +1146,8 @@ function renderTasksList(tasks, target) {
                                         } else {
                                             refContentCounter.textContent = '0 Friends';
                                         }
+
+                                        refContentCounter.fontSize = '45px';
                                         adjustFontSize(refContentCounter);
                                     }
                                 }
@@ -1256,7 +1289,6 @@ function handleMenuClick(event) {
 
     for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
-
         if (i !== 3) {
             const counterWrapper = document.createElement('div');
             const counterIcon = document.createElement('img');
@@ -1267,10 +1299,14 @@ function handleMenuClick(event) {
 
             counterWrapper.style.display = 'flex';
             counterWrapper.style.gap = '5px';
+            counterWrapper.style.alignItems = 'center';
+            counterWrapper.style.fontSize = '45px';
+
             counterIcon.src = './assets/images/bullcoin_icon.png';
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
             userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+            userLevel.style.fontSize = '20px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
@@ -1283,6 +1319,8 @@ function handleMenuClick(event) {
             } else {
                 refContentCounter.textContent = '0 Friends';
             }
+
+            refContentCounter.fontSize = '45px';
             adjustFontSize(refContentCounter);
         }
     }
