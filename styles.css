@@ -149,7 +149,6 @@ html, body {
 
 .tasks-list {
     position: relative;
-    /*overflow-y: scroll;*/
     height: 45vh;
     margin-top: 15px;
 }
@@ -246,8 +245,7 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 4%;
-    /*overflow-y: scroll;*/
-    height: 27vh;
+    height: 35vh;
 }
 
 .boost-list-item {
@@ -341,7 +339,6 @@ html, body {
 .ref-list {
     display: flex;
     flex-direction: column;
-    /*overflow-y: scroll;*/
     height: 29vh;
     gap: 5px;
     margin-top: 15px;

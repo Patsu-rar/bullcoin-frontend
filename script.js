@@ -49,6 +49,7 @@ setInterval(() => {
     if (storageUser) {
         const updateBody = {
             points: storageUser.points,
+            general_points: storageUser.general_points,
             current_energy: storageUser.current_energy,
             boosters: [
                 {
@@ -93,7 +94,7 @@ function initData() {
     currentEnergy = storageUser.current_energy;
     maxEnergy = storageUser.max_energy;
 
-    coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.points)}.png`;
+    coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.general_points)}.png`;
 
     if (!loginTime) {
         localStorage.setItem('loginTime', `${Date.now()}`);
@@ -135,8 +136,13 @@ function initData() {
 
                 const earnedPoints = Math.floor(validWorkTimeInSeconds * pointsPerClick);
 
+                Telegram.WebApp.showAlert(`Your tapbot earned ${earnedPoints} coins.`);
+
                 clickCount += Math.max(0, earnedPoints);
                 storageUser.points = clickCount;
+                if (storageUser.points > storageUser.general_points) {
+                    storageUser.general_points = storageUser.points;
+                }
             }
 
             currentEnergy = maxEnergy;
@@ -266,20 +272,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.addEventListener('touchstart', onTouchStart, { passive: false });
     document.documentElement.addEventListener('touchmove', onTouchMove, { passive: false });
 
-    if (!isMobileDevice()) {
-        hideLoader();
-        mainContainer.style.display = 'none';
-        mobileCaution.style.display = 'flex';
-    } else {
+    // if (!isMobileDevice()) {
+    //     hideLoader();
+    //     mainContainer.style.display = 'none';
+    //     mobileCaution.style.display = 'flex';
+    // } else {
         async function fetchUserData() {
             try {
                 let storageUser = JSON.parse(localStorage.getItem('user'));
 
-                const params = new URLSearchParams(Telegram.WebApp.initData);
-                const userData = JSON.parse(params.get('user'));
-                const telegramId = userData.id;
-                const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-                // const response = await fetch(BACKEND_URL + `/user/550066310`);
+                // const params = new URLSearchParams(Telegram.WebApp.initData);
+                // const userData = JSON.parse(params.get('user'));
+                // const telegramId = userData.id;
+                // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
+                const response = await fetch(BACKEND_URL + `/user/550066310`);
 
                 const data = await response.json();
 
@@ -300,6 +306,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.referrals_given.length > storageUser.referrals_given.length) {
                         storageUser.points += 5000 * (data.referrals_given.length - storageUser.referrals_given.length);
                         clickCount = storageUser.points;
+                        if (storageUser.points > storageUser.general_points) {
+                            storageUser.general_points = storageUser.points;
+                        }
                         storageUser.invited_count = data.referrals_given.length;
                         storageUser.referrals_given.push({
                             'points_awarded': 5000,
@@ -327,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoader();
             contents.item(0).classList.add('active');
         });
-    }
+    // }
 });
 
 async function upgradeBooster(boosterName) {
@@ -486,6 +495,9 @@ function renderBoostersList(boosters) {
                         if (currentEnergy === maxEnergy) {
                             clickCount += storageUser.boosters[0].level;
                             storageUser.points = clickCount;
+                            if (storageUser.points > storageUser.general_points) {
+                                storageUser.general_points = storageUser.points;
+                            }
                             onlineTapBotCounter += storageUser.boosters[0].level;
                             storageUser.boosters[3].lastUpdated = Date.now();
 
@@ -768,6 +780,9 @@ function decreaseEnergy(event) {
                 }, 100);
 
                 storageUser.points = clickCount;
+                if (storageUser.points > storageUser.general_points) {
+                    storageUser.general_points = storageUser.points;
+                }
                 storageUser.current_energy = currentEnergy;
 
                 localStorage.setItem('user', `${JSON.stringify(storageUser)}`);
@@ -775,7 +790,7 @@ function decreaseEnergy(event) {
             }
         }
     }
-    coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.points)}.png`;
+    coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.general_points)}.png`;
     updateEnergy();
     for (let el of clickCounter) {
         el.replaceChildren();
@@ -890,6 +905,9 @@ function renderTasksList(tasks, target) {
 
                         clickCount += task.reward;
                         storageUser.points = clickCount;
+                        if (storageUser.points > storageUser.general_points) {
+                            storageUser.general_points = storageUser.points;
+                        }
                         storageUser.tasks = tasks;
 
                         localStorage.setItem('user', JSON.stringify(storageUser));
@@ -949,6 +967,7 @@ function renderTasksList(tasks, target) {
             const taskRightSide = document.createElement('div');
             const taskIcon = document.createElement('img');
             const taskTitle = document.createElement('div');
+            const taskTitleLink = document.createElement('a');
             const taskBonus = document.createElement('div');
             const taskInfoWrapper = document.createElement('div');
             const counterIcon = document.createElement('img');
@@ -983,6 +1002,9 @@ function renderTasksList(tasks, target) {
 
                                 clickCount += task.reward;
                                 storageUser.points = clickCount;
+                                if (storageUser.points > storageUser.general_points) {
+                                    storageUser.general_points = storageUser.points;
+                                }
                                 storageUser.tasks = tasks;
 
                                 localStorage.setItem('user', JSON.stringify(storageUser));
@@ -1024,13 +1046,29 @@ function renderTasksList(tasks, target) {
                 taskButton.textContent = '>';
                 taskButton.type = 'button';
                 taskButton.addEventListener('click', () => {
-                    Telegram.WebApp.openTelegramLink(task.task_url);
+                    if (task.task_url.includes('t.me')) {
+                        Telegram.WebApp.openTelegramLink(task.task_url);
+                    } else {
+                        subscribeToTask(task.task_id);
+                        Telegram.WebApp.openLink(task.task_url);
+                    }
                 });
             }
 
             taskIcon.src = './assets/images/task_icon.png';
-            taskTitle.textContent = task.title;
             taskBonus.textContent = task.reward;
+
+            task.title.split(' ').forEach((item, index) => {
+                if (index === 1) {
+                    taskTitleLink.textContent = `${item}`;
+                    taskTitleLink.href = task.task_url;
+                    taskTitle.appendChild(taskTitleLink);
+                } else if (index === 2) {
+                    taskTitle.appendChild(document.createTextNode(` ${item} `));
+                } else {
+                    taskTitle.appendChild(document.createTextNode(`${item} `));
+                }
+            });
 
             taskRightSide.style.display = 'flex';
             taskRightSide.style.alignItems = 'center';
@@ -1107,6 +1145,24 @@ async function completeTask(task_id) {
         });
     } catch (error) {
         console.error('Error completing the task:', error);
+    }
+}
+
+async function subscribeToTask(taskId) {
+    try {
+        const storageUser = JSON.parse(localStorage.getItem('user'));
+        const response = await fetch(BACKEND_URL + `/user/${storageUser.telegram_id}/subscribe_task`, {
+            method: 'POST',
+            body: JSON.stringify({
+                task_id: taskId
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
     }
 }
 
@@ -1197,6 +1253,7 @@ function handleMenuClick(event) {
                 if (referralsList.length > storageUser.referrals_given.length) {
                     storageUser.points += 5000 * (referralsList.length - storageUser.referrals_given.length);
                     clickCount = storageUser.points;
+                    storageUser.general_points = storageUser.points;
                     storageUser.invited_count = referralsList.length;
                     storageUser.referrals_given.push({
                         'points_awarded': 5000,
