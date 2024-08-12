@@ -775,6 +775,7 @@ function adjustFontSize(el) {
         if (el.id !== 'ref-counter' && imageWidth > 30) {
             imageWidth--;
             el.getElementsByTagName('img')[0].style.width = `${imageWidth}px`;
+            el.getElementsByTagName('img')[0].style.height = `${imageWidth}px`;
         }
     }
 }
