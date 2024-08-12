@@ -277,12 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const scrollHeight = scrollableElement.scrollHeight;
             const clientHeight = scrollableElement.clientHeight;
 
-            // Allow scrolling inside the scrollable element
             if ((scrollTop === 0 && ts < te) || (scrollTop + clientHeight === scrollHeight && ts > te)) {
-                e.preventDefault(); // Prevent bouncing at the edges
+                e.preventDefault();
             }
         } else if (document.body.scrollTop <= 0 && ts < te) {
-            e.preventDefault(); // Prevent the swipe down action if the app is at the top
+            e.preventDefault();
         } else {
             e.preventDefault();
         }
@@ -291,20 +290,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.addEventListener('touchstart', onTouchStart, { passive: false });
     document.documentElement.addEventListener('touchmove', onTouchMove, { passive: false });
 
-    // if (!isMobileDevice()) {
-    //     hideLoader();
-    //     mainContainer.style.display = 'none';
-    //     mobileCaution.style.display = 'flex';
-    // } else {
+    if (!isMobileDevice()) {
+        hideLoader();
+        mainContainer.style.display = 'none';
+        mobileCaution.style.display = 'flex';
+    } else {
         async function fetchUserData() {
             try {
                 let storageUser = JSON.parse(localStorage.getItem('user'));
 
-                // const params = new URLSearchParams(Telegram.WebApp.initData);
-                // const userData = JSON.parse(params.get('user'));
-                // const telegramId = userData.id;
-                // const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
-                const response = await fetch(BACKEND_URL + `/user/550066310`);
+                const params = new URLSearchParams(Telegram.WebApp.initData);
+                const userData = JSON.parse(params.get('user'));
+                const telegramId = userData.id;
+                const response = await fetch(BACKEND_URL + `/user/${telegramId}`);
 
                 const data = await response.json();
 
@@ -355,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoader();
             contents.item(0).classList.add('active');
         });
-    // }
+    }
 });
 
 async function upgradeBooster(boosterName) {
