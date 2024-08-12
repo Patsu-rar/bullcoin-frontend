@@ -54,7 +54,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    flex-direction: column;
     margin-top: 1%;
     color: white;
     font-size: 60px;

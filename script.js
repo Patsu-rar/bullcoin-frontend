@@ -136,7 +136,7 @@ function initData() {
 
                 const earnedPoints = Math.floor(validWorkTimeInSeconds * pointsPerClick);
 
-                Telegram.WebApp.showAlert(`Your tapbot earned ${earnedPoints} coins.`);
+                // Telegram.WebApp.showAlert(`Your tapbot earned ${earnedPoints} coins.`);
 
                 clickCount += Math.max(0, earnedPoints);
                 storageUser.points = clickCount;
@@ -157,18 +157,37 @@ function initData() {
 
     renderBoostersList(storageUser.boosters);
 
-    for (let el of clickCounter) {
+    for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
 
-        const counterIcon = document.createElement('img');
-        const counterTitle = document.createElement('div');
+        if (i !== 3) {
+            const counterWrapper = document.createElement('div');
+            const counterIcon = document.createElement('img');
+            const counterTitle = document.createElement('div');
+            const userLevel = document.createElement('div');
 
-        counterIcon.src = './assets/images/bullcoin_icon.png';
-        counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+            counterIcon.className = 'main-coin-icon';
 
-        counterIcon.className = 'main-coin-icon';
+            counterWrapper.style.display = 'flex';
+            counterWrapper.style.gap = '5px';
+            counterIcon.src = './assets/images/bullcoin_icon.png';
+            counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
-        el.append(counterIcon, counterTitle);
+            userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+
+            counterWrapper.append(counterIcon, counterTitle);
+            el.append(counterWrapper, userLevel);
+            adjustFontSize(el);
+        } else {
+            const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+            if (referralsList) {
+                refContentCounter.textContent = `${referralsList.length} Friends`
+            } else {
+                refContentCounter.textContent = '0 Friends';
+            }
+            adjustFontSize(refContentCounter);
+        }
     }
 
     energyBarText.textContent = currentEnergy + '/' + maxEnergy;
@@ -393,15 +412,23 @@ function renderBoostersList(boosters) {
     for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
         if (i !== 3) {
+            const counterWrapper = document.createElement('div');
             const counterIcon = document.createElement('img');
             const counterTitle = document.createElement('div');
-
-            counterIcon.src = './assets/images/bullcoin_icon.png';
-            counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+            const userLevel = document.createElement('div');
 
             counterIcon.className = 'main-coin-icon';
 
-            el.append(counterIcon, counterTitle);
+            counterWrapper.style.display = 'flex';
+            counterWrapper.style.gap = '5px';
+            counterIcon.src = './assets/images/bullcoin_icon.png';
+            counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+
+            userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+
+            counterWrapper.append(counterIcon, counterTitle);
+            el.append(counterWrapper, userLevel);
+            adjustFontSize(el);
         } else {
             const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
@@ -505,16 +532,25 @@ function renderBoostersList(boosters) {
 
                             for (let [i, el] of clickCounter.entries()) {
                                 el.replaceChildren();
+
                                 if (i !== 3) {
+                                    const counterWrapper = document.createElement('div');
                                     const counterIcon = document.createElement('img');
                                     const counterTitle = document.createElement('div');
-
-                                    counterIcon.src = './assets/images/bullcoin_icon.png';
-                                    counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+                                    const userLevel = document.createElement('div');
 
                                     counterIcon.className = 'main-coin-icon';
 
-                                    el.append(counterIcon, counterTitle);
+                                    counterWrapper.style.display = 'flex';
+                                    counterWrapper.style.gap = '5px';
+                                    counterIcon.src = './assets/images/bullcoin_icon.png';
+                                    counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+
+                                    userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+
+                                    counterWrapper.append(counterIcon, counterTitle);
+                                    el.append(counterWrapper, userLevel);
+                                    adjustFontSize(el);
                                 } else {
                                     const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
@@ -603,16 +639,25 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
 
                         for (let [i, el] of clickCounter.entries()) {
                             el.replaceChildren();
+
                             if (i !== 3) {
+                                const counterWrapper = document.createElement('div');
                                 const counterIcon = document.createElement('img');
                                 const counterTitle = document.createElement('div');
-
-                                counterIcon.src = './assets/images/bullcoin_icon.png';
-                                counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+                                const userLevel = document.createElement('div');
 
                                 counterIcon.className = 'main-coin-icon';
 
-                                el.append(counterIcon, counterTitle);
+                                counterWrapper.style.display = 'flex';
+                                counterWrapper.style.gap = '5px';
+                                counterIcon.src = './assets/images/bullcoin_icon.png';
+                                counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+
+                                userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+
+                                counterWrapper.append(counterIcon, counterTitle);
+                                el.append(counterWrapper, userLevel);
+                                adjustFontSize(el);
                             } else {
                                 const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
@@ -738,14 +783,14 @@ function adjustFontSize(el) {
 
 function getIconLevel(points) {
     if (points < 1_000_000) return 1;
-    if (points < 3_000_000) return 2;
-    if (points < 5_000_000) return 3;
-    if (points < 10_000_000) return 4;
-    if (points < 20_000_000) return 5;
-    if (points < 40_000_000) return 6;
-    if (points < 60_000_000) return 7;
-    if (points < 80_000_000) return 8;
-    return 9;
+    if (points >= 1_000_000 && points < 3_000_000) return 2;
+    if (points >= 3_000_000 && points < 5_000_000) return 3;
+    if (points >= 5_000_000 && points < 10_000_000) return 4;
+    if (points >= 10_000_000 && points < 20_000_000) return 5;
+    if (points >= 20_000_000 && points < 40_000_000) return 6;
+    if (points >= 40_000_000 && points < 60_000_000) return 7;
+    if (points >= 60_000_000 && points < 80_000_000) return 8;
+    else return 9;
 }
 
 function decreaseEnergy(event) {
@@ -792,20 +837,38 @@ function decreaseEnergy(event) {
     }
     coin.src = `assets/images/bull_icon_${getIconLevel(storageUser.general_points)}.png`;
     updateEnergy();
-    for (let el of clickCounter) {
+    for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
 
-        const counterTitle = document.createElement('div');
-        const counterIcon = document.createElement('img');
+        if (i !== 3) {
+            const counterWrapper = document.createElement('div');
+            const counterIcon = document.createElement('img');
+            const counterTitle = document.createElement('div');
+            const userLevel = document.createElement('div');
 
-        counterIcon.src = './assets/images/bullcoin_icon.png';
-        counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+            counterIcon.className = 'main-coin-icon';
 
-        counterIcon.className = 'main-coin-icon';
+            counterWrapper.style.display = 'flex';
+            counterWrapper.style.gap = '5px';
+            counterIcon.src = './assets/images/bullcoin_icon.png';
+            counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
-        el.append(counterIcon, counterTitle);
+            userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+
+            counterWrapper.append(counterIcon, counterTitle);
+            el.append(counterWrapper, userLevel);
+            adjustFontSize(el);
+        } else {
+            const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+            if (referralsList) {
+                refContentCounter.textContent = `${referralsList.length} Friends`
+            } else {
+                refContentCounter.textContent = '0 Friends';
+            }
+            adjustFontSize(refContentCounter);
+        }
     }
-    adjustFontSize(clickCounter[0]);
 }
 
 function recoverEnergy() {
@@ -916,16 +979,25 @@ function renderTasksList(tasks, target) {
 
                         for (let [i, el] of clickCounter.entries()) {
                             el.replaceChildren();
+
                             if (i !== 3) {
+                                const counterWrapper = document.createElement('div');
                                 const counterIcon = document.createElement('img');
                                 const counterTitle = document.createElement('div');
-
-                                counterIcon.src = './assets/images/bullcoin_icon.png';
-                                counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+                                const userLevel = document.createElement('div');
 
                                 counterIcon.className = 'main-coin-icon';
 
-                                el.append(counterIcon, counterTitle);
+                                counterWrapper.style.display = 'flex';
+                                counterWrapper.style.gap = '5px';
+                                counterIcon.src = './assets/images/bullcoin_icon.png';
+                                counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+
+                                userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+
+                                counterWrapper.append(counterIcon, counterTitle);
+                                el.append(counterWrapper, userLevel);
+                                adjustFontSize(el);
                             } else {
                                 const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
@@ -1013,16 +1085,25 @@ function renderTasksList(tasks, target) {
 
                                 for (let [i, el] of clickCounter.entries()) {
                                     el.replaceChildren();
+
                                     if (i !== 3) {
+                                        const counterWrapper = document.createElement('div');
                                         const counterIcon = document.createElement('img');
                                         const counterTitle = document.createElement('div');
-
-                                        counterIcon.src = './assets/images/bullcoin_icon.png';
-                                        counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+                                        const userLevel = document.createElement('div');
 
                                         counterIcon.className = 'main-coin-icon';
 
-                                        el.append(counterIcon, counterTitle);
+                                        counterWrapper.style.display = 'flex';
+                                        counterWrapper.style.gap = '5px';
+                                        counterIcon.src = './assets/images/bullcoin_icon.png';
+                                        counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
+
+                                        userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+
+                                        counterWrapper.append(counterIcon, counterTitle);
+                                        el.append(counterWrapper, userLevel);
+                                        adjustFontSize(el);
                                     } else {
                                         const refContentCounter = document.querySelectorAll('.coin-counter')[3];
 
@@ -1170,21 +1251,38 @@ function handleMenuClick(event) {
     const target = event.target.getAttribute('data-target');
     const storageUser = JSON.parse(localStorage.getItem('user'));
 
-    clickCounter.forEach((el, i) => {
+    for (let [i, el] of clickCounter.entries()) {
         el.replaceChildren();
 
-        const counterTitle = document.createElement('div');
-        const counterIcon = document.createElement('img');
+        if (i !== 3) {
+            const counterWrapper = document.createElement('div');
+            const counterIcon = document.createElement('img');
+            const counterTitle = document.createElement('div');
+            const userLevel = document.createElement('div');
 
-        counterIcon.src = './assets/images/bullcoin_icon.png';
-        counterTitle.textContent = `${formatNumberWithSpaces(storageUser.points)}`;
+            counterIcon.className = 'main-coin-icon';
 
-        counterIcon.className = 'main-coin-icon';
+            counterWrapper.style.display = 'flex';
+            counterWrapper.style.gap = '5px';
+            counterIcon.src = './assets/images/bullcoin_icon.png';
+            counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
-        el.append(counterIcon, counterTitle);
-        adjustFontSize(clickCounter[i]);
-    });
+            userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
 
+            counterWrapper.append(counterIcon, counterTitle);
+            el.append(counterWrapper, userLevel);
+            adjustFontSize(el);
+        } else {
+            const refContentCounter = document.querySelectorAll('.coin-counter')[3];
+
+            if (referralsList) {
+                refContentCounter.textContent = `${referralsList.length} Friends`
+            } else {
+                refContentCounter.textContent = '0 Friends';
+            }
+            adjustFontSize(refContentCounter);
+        }
+    }
 
     contents.forEach(content => {
         content.classList.remove('active');
