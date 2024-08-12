@@ -852,7 +852,11 @@ function decreaseEnergy(event) {
             counterIcon.src = './assets/images/bullcoin_icon.png';
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
-            userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+            if (getIconLevel(storageUser.general_points) === 9) {
+                userLevel.textContent = 'Max lvl';
+            } else {
+                userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
+            }
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
