@@ -176,7 +176,7 @@ function initData() {
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
             userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-            userLevel.style.fontSize = '20px';
+            userLevel.style.fontSize = '30px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
@@ -431,7 +431,7 @@ function renderBoostersList(boosters) {
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
             userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-            userLevel.style.fontSize = '20px';
+            userLevel.style.fontSize = '30px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
@@ -476,6 +476,7 @@ function renderBoostersList(boosters) {
 
         counterIcon.src = './assets/images/bullcoin_icon.png';
         counterIcon.style.width = '15px';
+        counterIcon.style.height = '15px';
         upgradeBoosterIcon.textContent = '+';
 
         boostInfoWrapper.style.display = 'flex';
@@ -558,7 +559,7 @@ function renderBoostersList(boosters) {
                                     counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                     userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-                                    userLevel.style.fontSize = '20px';
+                                    userLevel.style.fontSize = '30px';
 
                                     counterWrapper.append(counterIcon, counterTitle);
                                     el.append(counterWrapper, userLevel);
@@ -670,7 +671,7 @@ function showConfirmationPopup(title, message, boosterName, boosterLevel = 0, bo
                                 counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                 userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-                                userLevel.style.fontSize = '20px';
+                                userLevel.style.fontSize = '30px';
 
                                 counterWrapper.append(counterIcon, counterTitle);
                                 el.append(counterWrapper, userLevel);
@@ -877,7 +878,7 @@ function decreaseEnergy(event) {
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
             userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-            userLevel.style.fontSize = '20px';
+            userLevel.style.fontSize = '30px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
@@ -1022,7 +1023,7 @@ function renderTasksList(tasks, target) {
                                 counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                 userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-                                userLevel.style.fontSize = '20px';
+                                userLevel.style.fontSize = '30px';
 
                                 counterWrapper.append(counterIcon, counterTitle);
                                 el.append(counterWrapper, userLevel);
@@ -1056,6 +1057,7 @@ function renderTasksList(tasks, target) {
 
             counterIcon.src = './assets/images/bullcoin_icon.png';
             counterIcon.style.width = '15px';
+            counterIcon.style.height = '15px';
 
             bonusWrapper.append(counterIcon, taskBonus)
             taskInfoWrapper.append(taskTitle, bonusWrapper);
@@ -1133,7 +1135,7 @@ function renderTasksList(tasks, target) {
                                         counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
                                         userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-                                        userLevel.style.fontSize = '20px';
+                                        userLevel.style.fontSize = '30px';
 
                                         counterWrapper.append(counterIcon, counterTitle);
                                         el.append(counterWrapper, userLevel);
@@ -1196,6 +1198,7 @@ function renderTasksList(tasks, target) {
 
             counterIcon.src = './assets/images/bullcoin_icon.png';
             counterIcon.style.width = '15px';
+            counterIcon.style.height = '15px';
 
             bonusWrapper.append(counterIcon, taskBonus)
             taskInfoWrapper.append(taskTitle, bonusWrapper);
@@ -1306,7 +1309,7 @@ function handleMenuClick(event) {
             counterTitle.textContent = `${formatNumberWithSpaces(clickCount)}`;
 
             userLevel.textContent = `${getIconLevel(storageUser.general_points)} lvl`;
-            userLevel.style.fontSize = '20px';
+            userLevel.style.fontSize = '30px';
 
             counterWrapper.append(counterIcon, counterTitle);
             el.append(counterWrapper, userLevel);
