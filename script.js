@@ -1165,7 +1165,7 @@ function renderTasksList(tasks, target) {
                 taskButton.textContent = '>';
                 taskButton.type = 'button';
                 taskButton.addEventListener('click', () => {
-                    if (task.task_url.includes('t.me')) {
+                    if (task.task_url.includes('t.me') && !task.task_url.includes('t.me/+')) {
                         Telegram.WebApp.openTelegramLink(task.task_url);
                     } else {
                         subscribeToTask(task.task_id);
