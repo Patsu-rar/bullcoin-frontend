@@ -214,11 +214,13 @@ function showLoader() {
     });
     loader.style.visibility = 'visible';
     menuWrapper.style.visibility = 'hidden';
+    mainContainer.style.visibility = 'hidden';
 }
 
 function hideLoader() {
     loader.style.visibility = 'hidden';
     menuWrapper.style.visibility = 'visible';
+    mainContainer.style.visibility = 'visible';
 }
 
 function initTg() {
